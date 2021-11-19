@@ -22,19 +22,18 @@ public class NacosConfig {
     @PostConstruct
     public void init() throws Exception {
         System.out.println("我执行了吗");
+        // initConfig("catEyeAbnormalOrderManageExportAdbSqlFor363000");
+        // initConfig("catEyeAbnormalOrderManageExportAdbSqlNew");
+        //  initConfig("catEyeAbnormalOrderManageExportAdbSqlNewOrder");
+        // initConfig("catEyeAbnormalOrderManageExportAdbSqlNewOrderFor363000");
         initConfig("testSql", "DEFAULT_GROUP");
-        initConfig("catEyeAbnormalOrderManageExportAdbSqlFor363000");
-        initConfig("catEyeAbnormalOrderManageExportAdbSqlNew");
-        initConfig("catEyeAbnormalOrderManageExportAdbSqlNewOrder");
-        initConfig("catEyeAbnormalOrderManageExportAdbSqlNewOrderFor363000");
-
-        initConfig("xml-catEyeAbnormalOrderManageExportAdbSqlNewOrderFor363000","DEFAULT_GROUP");
+        initConfig("xml-catEyeAbnormalOrderManageExportAdbSqlNewOrderFor363000", "DEFAULT_GROUP");
         System.out.println("执行结束");
     }
 
     public void initConfig(String dataId) throws Exception {
         String group = "xml.sql";
-        initConfig(dataId,group);
+        initConfig(dataId, group);
     }
 
     public void initConfig(String dataId, String group) throws Exception {

@@ -26,15 +26,15 @@ public class TestController {
         return ALLSQL.finaAll();
     }
 
-    @GetMapping("/find/{key}")
-    public Object find(@PathVariable String key){
-        String catEyeAbnormalOrderManageExportAdbSqlFor363000 = ALLSQL.findByKey(key);
+    @GetMapping("/find/{key}/{curd}/{id}")
+    public Object find(@PathVariable String key,@PathVariable String curd,@PathVariable String id){
+        String catEyeAbnormalOrderManageExportAdbSqlFor363000 = ALLSQL.findByKey(key,curd,id);
         return catEyeAbnormalOrderManageExportAdbSqlFor363000;
     }
 
-    @PostMapping("/run/{key}")
-    public Object run(@PathVariable String key, @RequestBody Map<String,Object> map){
-        String sql = ALLSQL.findByKey(key);
+    @PostMapping("/run/{key}/{curd}/{id}")
+    public Object run(@PathVariable String key,@PathVariable String curd,@PathVariable String id,@RequestBody Map<String,Object> map){
+        String sql = ALLSQL.findByKey(key,curd,id);
         if (StringUtils.isNotBlank(sql)){
            return  MyBatisUtil.parseDynamicXMLFormXmlStr(sql,map);
         }

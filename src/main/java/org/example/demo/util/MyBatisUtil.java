@@ -15,6 +15,7 @@ import org.apache.ibatis.reflection.MetaObject;
 import org.apache.ibatis.scripting.xmltags.XMLScriptBuilder;
 import org.apache.ibatis.session.Configuration;
 
+import org.example.demo.config.nacos.SqlModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -70,7 +71,6 @@ public class MyBatisUtil {
         if (doc == null) {
             return null;
         }
-        NodeList select = doc.getElementsByTagName("select");
         //走mybatis 流程 parse成Xnode
         XNode xNode = new XNode(new XPathParser(doc, false), doc.getFirstChild(), null);
         // 之前的所有步骤 都是为了构建 XMLScriptBuilder 对象,
@@ -245,7 +245,12 @@ public class MyBatisUtil {
         System.out.println(stringMapMap);
     }
 
-    private static Map<String, Map<String, String>> selectParseXML(String allXml) {
+    /**
+     * <select, <id,sql>>
+     * @param allXml
+     * @return
+     */
+    public static Map<String, Map<String, String>> selectParseXML(String allXml) {
         if (StringUtils.isBlank(allXml)) {
             log.error("动态解析的xmlString 不能为空!!");
             return null;
