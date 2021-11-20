@@ -15,7 +15,6 @@ import org.apache.ibatis.reflection.MetaObject;
 import org.apache.ibatis.scripting.xmltags.XMLScriptBuilder;
 import org.apache.ibatis.session.Configuration;
 
-import org.example.demo.config.nacos.SqlModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
