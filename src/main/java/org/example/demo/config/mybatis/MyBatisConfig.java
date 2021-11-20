@@ -2,6 +2,8 @@ package org.example.demo.config.mybatis;
 
 import com.alibaba.druid.pool.DruidDataSource;
 import com.mysql.cj.jdbc.Driver;
+import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.SqlSessionTemplate;
@@ -9,21 +11,25 @@ import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 import javax.sql.DataSource;
+import java.util.Arrays;
 
 /**
  * @author nmy
  * @version 1.0
  * @since 2021/11/20
  */
+@Slf4j
 @Configuration
 @MapperScan(basePackages = MyBatisConfig.TYPE_ALIASES_PACKAGE,sqlSessionFactoryRef=MyBatisConfig.SQL_SESSION_FACTORY_NAME)
 public class MyBatisConfig {
 
     protected final static String TYPE_ALIASES_PACKAGE = "org.example.demo.mapper.test1";
-    private final static String MAPPER_XML_LOCATIONS = "classpath:org/example/demo/mapper/test1/xml/CommonMapper.xml";
+    private final static String MAPPER_XML_LOCATIONS = "classpath*:org/example/demo/mapper/test1/xml/*Mapper.xml";
     private final static String DATA_SOURCE_NAME = "mysql-test1" + "DATA_SOURCE_NAME";
     protected final static String SQL_SESSION_FACTORY_NAME = "mysql-test1" + "SQL_SESSION_FACTORY_NAME";
     private final static String SQL_SESSION_TEMPLATE_NAME = "mysql-test1" + "SQL_SESSION_TEMPLATE_NAME";
@@ -65,8 +71,12 @@ public class MyBatisConfig {
     public SqlSessionFactory sqlSessionFactory(@Qualifier(DATA_SOURCE_NAME) DataSource dataSource) throws Exception {
         SqlSessionFactoryBean factoryBean = new SqlSessionFactoryBean();
         factoryBean.setDataSource(dataSource);
-        factoryBean.setMapperLocations(new PathMatchingResourcePatternResolver().getResource(MAPPER_XML_LOCATIONS));
-       // factoryBean.setTypeAliasesPackage(TYPE_ALIASES_PACKAGE);
+        Resource[] mapperXmlLocation = new PathMatchingResourcePatternResolver().getResources(MAPPER_XML_LOCATIONS);
+
+        log.error("{} MAPPER_XML_LOCATIONS 加载中 ...",DATA_SOURCE_NAME);
+        factoryBean.setMapperLocations(mapperXmlLocation);
+        log.error("{} MAPPER_XML_LOCATIONS 加载完成",DATA_SOURCE_NAME);
+        Arrays.stream(mapperXmlLocation).forEach(r->log.error("{}  加载完成 ",r));
         factoryBean.getObject().getConfiguration().setMapUnderscoreToCamelCase(true);
         factoryBean.getObject().getConfiguration().addInterceptor(new SqlInterceptor());
         factoryBean.getObject().getConfiguration().setCallSettersOnNulls(true);
@@ -78,4 +88,5 @@ public class MyBatisConfig {
             @Qualifier(SQL_SESSION_FACTORY_NAME) SqlSessionFactory adbASqlSessionFactory) {
         return new SqlSessionTemplate(adbASqlSessionFactory);
     }
+
 }

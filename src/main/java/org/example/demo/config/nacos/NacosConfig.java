@@ -3,6 +3,7 @@ package org.example.demo.config.nacos;
 import com.alibaba.nacos.api.annotation.NacosInjected;
 import com.alibaba.nacos.api.config.ConfigService;
 import com.alibaba.nacos.api.config.listener.AbstractListener;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 
@@ -14,6 +15,7 @@ import javax.annotation.PostConstruct;
  * @since 2021/11/17
  */
 @Component
+@Slf4j
 public class NacosConfig {
 
     @NacosInjected
@@ -21,14 +23,14 @@ public class NacosConfig {
 
     @PostConstruct
     public void init() throws Exception {
-        System.out.println("我执行了吗");
+        log.info("加载 nacos sql 中...");
         // initConfig("catEyeAbnormalOrderManageExportAdbSqlFor363000");
         // initConfig("catEyeAbnormalOrderManageExportAdbSqlNew");
         //  initConfig("catEyeAbnormalOrderManageExportAdbSqlNewOrder");
         // initConfig("catEyeAbnormalOrderManageExportAdbSqlNewOrderFor363000");
         initConfig("testSql", "DEFAULT_GROUP");
         initConfig("xml-catEyeAbnormalOrderManageExportAdbSqlNewOrderFor363000", "DEFAULT_GROUP");
-        System.out.println("执行结束");
+        log.error("nacos sql 全部加载完成");
     }
 
     public void initConfig(String dataId) throws Exception {

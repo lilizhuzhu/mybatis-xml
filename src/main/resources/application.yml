@@ -1,5 +1,5 @@
 server:
-  port: 8090
+  port: 8091
 nacos:
   config:
     server-addr: 127.0.0.1:8851,127.0.0.1:8852,127.0.0.1:8853

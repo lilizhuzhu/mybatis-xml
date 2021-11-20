@@ -1,6 +1,7 @@
 package org.example.demo.config.nacos;
 
 import cn.hutool.core.map.MapUtil;
+import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.example.demo.util.MyBatisUtil;
@@ -20,10 +21,12 @@ public class ALLSQL {
     private static final Map<String, Map<String, Map<String, String>>> sqlMap = new ConcurrentHashMap<>();
 
     public static void addSql(String key, String allXmlSql) {
+        log.error("尝试加载 nacos sql dataId={} ",key);
         if (StringUtils.isNoneBlank(key, allXmlSql)) {
             Map<String, Map<String, String>> stringMapMap = MyBatisUtil.selectParseXML(allXmlSql);
             if (MapUtil.isNotEmpty(stringMapMap)) {
                 sqlMap.put(key, stringMapMap);
+                log.error("加载成功 nacos sql sqlMapper={} ", JSON.toJSONString(stringMapMap));
             }
         }
     }
