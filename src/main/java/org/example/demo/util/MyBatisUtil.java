@@ -1,9 +1,7 @@
 package org.example.demo.util;
 
-import cn.hutool.core.util.XmlUtil;
 import com.alibaba.fastjson.JSON;
 
-import com.sun.org.apache.xerces.internal.dom.DeferredDocumentImpl;
 import com.sun.org.apache.xerces.internal.dom.DeferredElementImpl;
 import com.sun.org.apache.xerces.internal.dom.DeferredTextImpl;
 import org.apache.commons.lang3.StringUtils;
@@ -31,7 +29,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.StringReader;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -128,121 +125,23 @@ public class MyBatisUtil {
     }
 
     public static void main(String[] args) throws Exception {
-        String sql = "<mapper>\n" +
+        String sql = "<mapper><select uop=\"李四\" id=\"selectAll\">\n" +
+                "select * from people \n" +
+                "<where>\n" +
+                "<if test=\"name!=null and name!=''\">\n" +
+                "  and name=#{name}\n" +
+                "</if>\n" +
+                "<if test=\"age!=null\">\n" +
+                "  and age=#{age}\n" +
+                "</if>\n" +
                 "\n" +
-                " <select id=\"catEyeAbnormalOrderManageExportAdbSqlNewOrderFor363000\">\n" +
-                "        select trade_id 交易单号,\n" +
-                "        scp_order_code 履约单号,\n" +
-                "        fwd_mail_no_list 正向运单号,\n" +
-                "        fwd_lbx_order_code 发货LBX单号,\n" +
-                "        rev_lbx_order_code 退货LBX单号,\n" +
-                "        rev_mail_no 逆向运单号,\n" +
-                "        excp_order_code 异常编号,\n" +
-                "        concat( select type_name from ascp_abnormal_type where type_code = abnormal_type_level1,\n" +
-                "        select type_name from ascp_abnormal_type where type_code=abnormal_type_level2,\n" +
-                "        \"\\/ \",\n" +
-                "        select type_name from ascp_abnormal_type where type_code=abnormal_type_level3) 异常类型,\n" +
-                "        error_desc 异常描述,\n" +
-                "        excp_status 异常状态,\n" +
-                "        gmt_create 异常发生时间,\n" +
-                "        trade_pay_time 交易支付时间,\n" +
-                "        scp_biz_order_status 订单状态,\n" +
-                "        receiver_address 收货地址,\n" +
-                "        call_cco 消费者是否进线,\n" +
-                "        active_service CCO是否主动服务,\n" +
-                "        event_list 关联事件,\n" +
-                "        buyer_id 买家ID,\n" +
-                "        store_code 发货仓,\n" +
-                "        operate_status 人工处理状态,\n" +
-                "        attributes 处理备注,\n" +
-                "        time_sensitive 消费者时效敏感,\n" +
-                "        complain_sensitive 消费者是否投诉敏感,\n" +
-                "        province_name 省,\n" +
-                "        city_name 市,\n" +
-                "        model_type 新老类型,\n" +
-                "        area_name 区,\n" +
-                "        attributes 扩展信息\n" +
-                "        from dwd_ascp_uop_excp_order\n" +
-                "        where 1=1\n" +
-                "        <if test=\"orderCode!=null and orderCode!=''\">\n" +
-                "            and (fwd_lbx_order_code = #{orderCode} or trade_id = #{orderCode} or rev_lbx_order_code = #{orderCode} or\n" +
-                "            scp_order_code = #{orderCode})\n" +
-                "        </if>\n" +
-                "        <if test=\"excpStatuss!=null\">\n" +
-                "            and excp_status in (${excpStatuss})\n" +
-                "        </if>\n" +
-                "        <if test=\"abnormalOrderType!=null\">\n" +
-                "            and excp_type in (${abnormalOrderType})\n" +
-                "        </if>\n" +
-                "        <if test=\"abnormalTimeFrom!=null\">\n" +
-                "            and gmt_create >= #{abnormalTimeFrom}\n" +
-                "        </if>\n" +
-                "        <if test=\"abnormalTimeTo!=null\">\n" +
-                "            and gmt_create &lt;= #{abnormalTimeTo}\n" +
-                "        </if>\n" +
-                "        <if test=\"payTimeFrom!=null\">\n" +
-                "            and trade_pay_time >= #{payTimeFrom}\n" +
-                "        </if>\n" +
-                "        <if test=\"payTimeTo!=null\">\n" +
-                "            and trade_pay_time &lt;= #{payTimeTo}\n" +
-                "        </if>\n" +
-                "        <if test=\"orderStatus!=null\">\n" +
-                "            and excp_status = #{orderStatus}\n" +
-                "        </if>\n" +
-                "        <if test=\"store_code!=null\">\n" +
-                "            and store_code = #{storeCode}\n" +
-                "        </if>\n" +
-                "        <if test=\"spCode!=null\">\n" +
-                "            and sp_code = #{spCode}\n" +
-                "        </if>\n" +
-                "        <if test=\"tmsCode!=null\">\n" +
-                "            and tms_code = #{tmsCode}\n" +
-                "        </if>\n" +
-                "        <if test=\"incomeLine!=null\">\n" +
-                "            and call_cco =#{incomeLine}\n" +
-                "        </if>\n" +
-                "        <if test=\"shopId!=null\">\n" +
-                "            and seller_id in (${shopId})\n" +
-                "        </if>\n" +
-                "        <if test=\"abnormalTypeLevel1!=null\">\n" +
-                "            and abnormal_type_level1 in (${abnormalTypeLevel1})\n" +
-                "        </if>\n" +
-                "        <if test=\"abnormalTypeLevel2!=null\">\n" +
-                "            abnormal_type_level2 in (${abnormalTypeLevel2})\n" +
-                "        </if>\n" +
-                "        <if test=\"abnormalTypeLevel3!=null\">\n" +
-                "            abnormal_type_level3 in (${abnormalTypeLevel3})\n" +
-                "        </if>\n" +
-                "        <if test=\"ownerId!=null\">\n" +
-                "            and owner_id = #{ownerId}\n" +
-                "        </if>\n" +
-                "        <if test=\"scpBizOrderStatus!=null\">\n" +
-                "            and scp_biz_order_status = #{scpBizOrderStatus}\n" +
-                "        </if>\n" +
-                "        <if test=\"activeService!=null\">\n" +
-                "            and active_service = #{activeService}\n" +
-                "        </if>\n" +
-                "        <if test=\"associatedEvent!=null\">\n" +
-                "            and event_list like concat('%',#{associatedEvent},'%')\n" +
-                "        </if>\n" +
-                "        <if test=\"excpOrderCode!=null\">\n" +
-                "            and excp_order_code = #{excpOrderCode}\n" +
-                "        </if>\n" +
-                "        <if test=\"scpBizGroup!=null\">\n" +
-                "            and scp_biz_group = #{scpBizGroup}\n" +
-                "        </if>\n" +
-                "        <if test=\"city!=null\">\n" +
-                "            AND (city_code = #{city} or province_code = #{city})\n" +
-                "        </if>\n" +
-                "    </select>\n" +
-                "</mapper>";
-
-        Map<String, Map<String, String>> map = new HashMap<>();
+                "</where>\n" +
+                "</select></mapper>";
         Document document = documentBuilder.parse(new InputSource(new StringReader(sql)));
-
         NodeList selectList = document.getElementsByTagName("select");
-        map.put("select", getIdAndSql(selectList));
-        //System.out.println(map);
+        Map<String, String> idAndSql = getIdAndXmlSql(selectList);
+        System.out.println(idAndSql);
+
 
 
     }
@@ -265,10 +164,10 @@ public class MyBatisUtil {
             NodeList updateList = document.getElementsByTagName("update");
             NodeList deleteList = document.getElementsByTagName("delete");
             NodeList insertList = document.getElementsByTagName("insert");
-            map.put("select", getIdAndSql(selectList));
-            map.put("update", getIdAndSql(updateList));
-            map.put("delete", getIdAndSql(deleteList));
-            map.put("insert", getIdAndSql(insertList));
+            map.put("select", getIdAndXmlSql(selectList));
+            map.put("update", getIdAndXmlSql(updateList));
+            map.put("delete", getIdAndXmlSql(deleteList));
+            map.put("insert", getIdAndXmlSql(insertList));
             return map;
         } catch (Exception e) {
             log.error("XML解析异常,请检查XML格式是否正确,errMsg:{}", e.getMessage());
@@ -276,7 +175,12 @@ public class MyBatisUtil {
         return null;
     }
 
-    private static Map<String, String> getIdAndSql(NodeList nodeList) {
+    /**
+     * 获得xml 中 父节点参数id 对应的原始Xml字符串
+     * @param nodeList
+     * @return
+     */
+    private static Map<String, String> getIdAndXmlSql(NodeList nodeList) {
         int length = nodeList.getLength();
         if (length > 0) {
             Map<String, String> child = new HashMap<>(length);
@@ -287,8 +191,8 @@ public class MyBatisUtil {
                     Node node = attributes.getNamedItem("id");
                     if (node != null) {
                         if (StringUtils.isNoneEmpty(node.getNodeValue(), item.getTextContent())) {
-                            // 把整个xml 加入
-                            child.put(node.getNodeValue(),  getNodeAll(item));
+                            // id , 把整个xml字符串 加入
+                            child.put(node.getNodeValue(), getNodeAll(item));
                         }
                     }
                 }
@@ -298,39 +202,65 @@ public class MyBatisUtil {
         return Collections.EMPTY_MAP;
     }
 
-    private static String getNodeAll(Node node) {
-        StringBuilder stringBuilder = new StringBuilder();
-        String nodeName = node.getNodeName();
-        if (DeferredElementImpl.class.isInstance(node)) {
-            String idNodeStr = "";
+    /**
+     * <select id="ddd" op="ooo"></>
+     * 获得某个节点的 参数
+     *
+     * @param node
+     * @return id="ddd" op="ooo"
+     */
+    private static String getNodeParameter(Node node) {
+        StringBuilder parameter = new StringBuilder();
+        if (Objects.nonNull(node) && DeferredElementImpl.class.isInstance(node)) {
             if (node.hasAttributes()) {
-                Node idNode = node.getAttributes().getNamedItem("id");
-                if (Objects.nonNull(idNode)) {
-                    String nodeValue = idNode.getNodeValue();
-                    if (StringUtils.isNotBlank(nodeName)) {
-                        idNodeStr = " id=\""+nodeValue+"\"";
+                NamedNodeMap attributes = node.getAttributes();
+                for (int j = 0; j < attributes.getLength(); j++) {
+                    Node attribute = attributes.item(j);
+                    if (Objects.nonNull(attribute)) {
+                        String attributeNodeValue = attribute.getNodeValue();
+                        String attributeNodeName = attribute.getNodeName();
+                        if (StringUtils.isNoneBlank(attributeNodeName, attributeNodeValue)) {
+                            parameter.append(" " + attributeNodeName + "=\"" + attributeNodeValue + "\"");
+                        }
                     }
-
                 }
             }
-            stringBuilder.append("<" + nodeName + idNodeStr + ">");
+        }
+        return parameter.toString();
+    }
+
+    /**
+     * 获得某个节点 原始(解析前)的xml字符串
+     * @param node
+     * @return
+     */
+    private static String getNodeAll(Node node) {
+        StringBuilder xmlStr = new StringBuilder();
+
+        //判断是否为节点
+        if (DeferredElementImpl.class.isInstance(node)) {
+            xmlStr.append("<" + node.getNodeName() + getNodeParameter(node) + ">");
         }
         NodeList childNodes = node.getChildNodes();
-        if (childNodes.getLength() == 0) {
-            return stringBuilder.toString();
+        //判断是否有子节点
+        if (childNodes == null || childNodes.getLength() == 0) {
+            return xmlStr.toString();
         }
+        //遍历子节点 从
         for (int i = 0; i < childNodes.getLength(); i++) {
             Node item = childNodes.item(i);
+            //判断是否为 文本节点
             if (DeferredTextImpl.class.isInstance(item)) {
-                String textContent = item.getTextContent();
-                stringBuilder.append(textContent);
+                xmlStr.append(item.getTextContent());
             } else {
-                stringBuilder.append(getNodeAll(item));
+                xmlStr.append(getNodeAll(item));
             }
-
         }
-        stringBuilder.append("</" + nodeName + ">");
-        return stringBuilder.toString();
+        if (DeferredElementImpl.class.isInstance(node)) {
+            xmlStr.append("</" + node.getNodeName() + ">");
+        }
+
+        return xmlStr.toString();
     }
 }
 
