@@ -41,9 +41,14 @@ public class TestController {
     public Object run(@PathVariable String key,@PathVariable String curd,@PathVariable String id,@RequestBody Map<String,Object> map){
         String sql = ALLSQL.findByKey(key,curd,id);
         if (StringUtils.isNotBlank(sql)){
-            SqlQueryRequest build = SqlQueryRequest.builder().sql(MyBatisUtil.parseDynamicXMLFormXmlStr(sql, map)).build();
-            return commonMapper.sqlQueryByCondition(build);
+            SqlQueryRequest sqlQueryRequest = new SqlQueryRequest();
+            sqlQueryRequest.setSql(MyBatisUtil.parseDynamicXMLFormXmlStr(sql, map));
+            return commonMapper.sqlQueryByCondition(sqlQueryRequest);
         }
         return sql;
+    }
+    @GetMapping("queryList")
+    public Object queryList(){
+      return   commonMapper.queryList();
     }
 }

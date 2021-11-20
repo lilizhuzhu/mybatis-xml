@@ -1,6 +1,5 @@
 package org.example.demo.util;
 
-import com.alibaba.fastjson.JSON;
 
 import com.sun.org.apache.xerces.internal.dom.DeferredElementImpl;
 import com.sun.org.apache.xerces.internal.dom.DeferredTextImpl;
@@ -64,7 +63,7 @@ public class MyBatisUtil {
      */
     public static String parseDynamicXMLFormXmlStr(String xmlSQL, Object parameterObject) {
 
-        log.info("原始sqlXml:{} , params:{}", xmlSQL, JSON.toJSONString(parameterObject));
+        //log.info("原始sqlXml:{} , params:{}", xmlSQL, JSON.toJSONString(parameterObject));
         //解析成xml
         Document doc = parseXMLDocument(xmlSQL);
         if (doc == null) {
@@ -106,8 +105,8 @@ public class MyBatisUtil {
             }
         }
         //格式化 sql 移除多余空格
-        log.info("removeExtraWhitespace -> executeSql: {}", SqlSourceBuilder.removeExtraWhitespaces(executeSql));
-        return executeSql;
+        //log.info("removeExtraWhitespace -> executeSql: {}", SqlSourceBuilder.removeExtraWhitespaces(executeSql));
+        return SqlSourceBuilder.removeExtraWhitespaces(executeSql);
     }
 
 
