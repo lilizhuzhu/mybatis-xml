@@ -254,7 +254,6 @@ public class MyBatisUtil {
             log.error("动态解析的xmlString 不能为空!!");
             return null;
         }
-        allXml = head + allXml;
         try {
             Map<String, Map<String, String>> map = new HashMap<>();
             Document document = documentBuilder.parse(new InputSource(new StringReader(allXml)));
