@@ -1,7 +1,11 @@
 package org.example.demo.util;
 
+import cn.hutool.core.util.XmlUtil;
 import com.alibaba.fastjson.JSON;
 
+import com.sun.org.apache.xerces.internal.dom.DeferredDocumentImpl;
+import com.sun.org.apache.xerces.internal.dom.DeferredElementImpl;
+import com.sun.org.apache.xerces.internal.dom.DeferredTextImpl;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.builder.SqlSourceBuilder;
 import org.apache.ibatis.mapping.BoundSql;
@@ -27,18 +31,17 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 
 public class MyBatisUtil {
     private static final Logger log = LoggerFactory.getLogger(MyBatisUtil.class);
-    private static final String head = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n" +
-            "<!DOCTYPE mapper PUBLIC \"-//mybatis.org//DTD Mapper 3.0//EN\" \"http://mybatis.org/dtd/mybatis-3-mapper.dtd\">\n";
-
     private static final Configuration configuration = new Configuration();
     private static DocumentBuilder documentBuilder;
 
@@ -124,7 +127,7 @@ public class MyBatisUtil {
         return null;
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         String sql = "<mapper>\n" +
                 "\n" +
                 " <select id=\"catEyeAbnormalOrderManageExportAdbSqlNewOrderFor363000\">\n" +
@@ -175,13 +178,13 @@ public class MyBatisUtil {
                 "            and gmt_create >= #{abnormalTimeFrom}\n" +
                 "        </if>\n" +
                 "        <if test=\"abnormalTimeTo!=null\">\n" +
-                "            and gmt_create <![CDATA[ <= ]]> #{abnormalTimeTo}\n" +
+                "            and gmt_create &lt;= #{abnormalTimeTo}\n" +
                 "        </if>\n" +
                 "        <if test=\"payTimeFrom!=null\">\n" +
                 "            and trade_pay_time >= #{payTimeFrom}\n" +
                 "        </if>\n" +
                 "        <if test=\"payTimeTo!=null\">\n" +
-                "            and trade_pay_time <![CDATA[ <= ]]> #{payTimeTo}\n" +
+                "            and trade_pay_time &lt;= #{payTimeTo}\n" +
                 "        </if>\n" +
                 "        <if test=\"orderStatus!=null\">\n" +
                 "            and excp_status = #{orderStatus}\n" +
@@ -232,20 +235,21 @@ public class MyBatisUtil {
                 "            AND (city_code = #{city} or province_code = #{city})\n" +
                 "        </if>\n" +
                 "    </select>\n" +
-                "\n" +
-                "\n" +
-                "\n" +
-                "<select id = \"op1\">\n" +
-                "select * from odps.sss\n" +
-                "</select>\n" +
                 "</mapper>";
 
-        Map<String, Map<String, String>> stringMapMap = selectParseXML(sql);
-        System.out.println(stringMapMap);
+        Map<String, Map<String, String>> map = new HashMap<>();
+        Document document = documentBuilder.parse(new InputSource(new StringReader(sql)));
+
+        NodeList selectList = document.getElementsByTagName("select");
+        map.put("select", getIdAndSql(selectList));
+        //System.out.println(map);
+
+
     }
 
     /**
      * <select, <id,sql>>
+     *
      * @param allXml
      * @return
      */
@@ -257,15 +261,14 @@ public class MyBatisUtil {
         try {
             Map<String, Map<String, String>> map = new HashMap<>();
             Document document = documentBuilder.parse(new InputSource(new StringReader(allXml)));
-
             NodeList selectList = document.getElementsByTagName("select");
             NodeList updateList = document.getElementsByTagName("update");
             NodeList deleteList = document.getElementsByTagName("delete");
             NodeList insertList = document.getElementsByTagName("insert");
-            map.put("select",getIdAndSql(selectList));
-            map.put("update",getIdAndSql(updateList));
-            map.put("delete",getIdAndSql(deleteList));
-            map.put("insert",getIdAndSql(insertList));
+            map.put("select", getIdAndSql(selectList));
+            map.put("update", getIdAndSql(updateList));
+            map.put("delete", getIdAndSql(deleteList));
+            map.put("insert", getIdAndSql(insertList));
             return map;
         } catch (Exception e) {
             log.error("XML解析异常,请检查XML格式是否正确,errMsg:{}", e.getMessage());
@@ -273,7 +276,7 @@ public class MyBatisUtil {
         return null;
     }
 
-    private static Map<String, String> getIdAndSql(NodeList nodeList){
+    private static Map<String, String> getIdAndSql(NodeList nodeList) {
         int length = nodeList.getLength();
         if (length > 0) {
             Map<String, String> child = new HashMap<>(length);
@@ -284,7 +287,8 @@ public class MyBatisUtil {
                     Node node = attributes.getNamedItem("id");
                     if (node != null) {
                         if (StringUtils.isNoneEmpty(node.getNodeValue(), item.getTextContent())) {
-                            child.put(node.getNodeValue(), item.getTextContent());
+                            // 把整个xml 加入
+                            child.put(node.getNodeValue(),  getNodeAll(item));
                         }
                     }
                 }
@@ -292,6 +296,41 @@ public class MyBatisUtil {
             return child;
         }
         return Collections.EMPTY_MAP;
+    }
+
+    private static String getNodeAll(Node node) {
+        StringBuilder stringBuilder = new StringBuilder();
+        String nodeName = node.getNodeName();
+        if (DeferredElementImpl.class.isInstance(node)) {
+            String idNodeStr = "";
+            if (node.hasAttributes()) {
+                Node idNode = node.getAttributes().getNamedItem("id");
+                if (Objects.nonNull(idNode)) {
+                    String nodeValue = idNode.getNodeValue();
+                    if (StringUtils.isNotBlank(nodeName)) {
+                        idNodeStr = " id=\""+nodeValue+"\"";
+                    }
+
+                }
+            }
+            stringBuilder.append("<" + nodeName + idNodeStr + ">");
+        }
+        NodeList childNodes = node.getChildNodes();
+        if (childNodes.getLength() == 0) {
+            return stringBuilder.toString();
+        }
+        for (int i = 0; i < childNodes.getLength(); i++) {
+            Node item = childNodes.item(i);
+            if (DeferredTextImpl.class.isInstance(item)) {
+                String textContent = item.getTextContent();
+                stringBuilder.append(textContent);
+            } else {
+                stringBuilder.append(getNodeAll(item));
+            }
+
+        }
+        stringBuilder.append("</" + nodeName + ">");
+        return stringBuilder.toString();
     }
 }
 

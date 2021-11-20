@@ -1,8 +1,11 @@
 package org.example.demo.controller;
 
 import org.apache.commons.lang3.StringUtils;
+import org.example.demo.common.SqlQueryRequest;
 import org.example.demo.config.nacos.ALLSQL;
+import org.example.demo.mapper.test1.CommonMapper;
 import org.example.demo.util.MyBatisUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,6 +22,8 @@ import java.util.Map;
  */
 @RestController
 public class TestController {
+    @Autowired
+   private CommonMapper commonMapper;
 
 
     @GetMapping("findAll")
@@ -36,7 +41,8 @@ public class TestController {
     public Object run(@PathVariable String key,@PathVariable String curd,@PathVariable String id,@RequestBody Map<String,Object> map){
         String sql = ALLSQL.findByKey(key,curd,id);
         if (StringUtils.isNotBlank(sql)){
-           return  MyBatisUtil.parseDynamicXMLFormXmlStr(sql,map);
+            SqlQueryRequest build = SqlQueryRequest.builder().sql(MyBatisUtil.parseDynamicXMLFormXmlStr(sql, map)).build();
+            return commonMapper.sqlQueryByCondition(build);
         }
         return sql;
     }
