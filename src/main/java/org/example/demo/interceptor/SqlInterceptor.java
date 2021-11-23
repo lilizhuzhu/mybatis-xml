@@ -8,6 +8,7 @@ import org.apache.ibatis.plugin.Invocation;
 import org.apache.ibatis.plugin.Plugin;
 import org.apache.ibatis.plugin.Signature;
 import org.apache.ibatis.session.ResultHandler;
+import org.example.demo.util.MyBatisUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,9 +27,7 @@ public class SqlInterceptor implements Interceptor {
         StatementHandler statementHandler = (StatementHandler) target;
 
         BoundSql boundSql = statementHandler.getBoundSql();
-
-        String sql = boundSql.getSql();
-        log.info("执行的sql 为： {}", sql);
+        log.info("执行的sql 为：{}", MyBatisUtil.getExecuteSql(boundSql));
         return invocation.proceed();
 
     }

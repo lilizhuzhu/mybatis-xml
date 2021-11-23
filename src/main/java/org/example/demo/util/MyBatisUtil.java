@@ -77,10 +77,24 @@ public class MyBatisUtil {
         //解析 静态xml 和动态的xml
         SqlSource sqlSource = xmlScriptBuilder.parseScriptNode();
         MappedStatement ms = new MappedStatement.Builder(configuration, UUID.randomUUID().toString(), sqlSource, null).build();
-
         //将原始sql 与 参数绑定
         BoundSql boundSql = ms.getBoundSql(parameterObject);
 
+        String executeSql = getExecuteSql(boundSql);
+        //格式化 sql 移除多余空格
+        return SqlSourceBuilder.removeExtraWhitespaces(executeSql);
+    }
+
+
+    /**
+     * 获得最后执行的sql 将 ？变为 参数
+     * @param boundSql
+     * @return
+     */
+    public static String getExecuteSql(BoundSql boundSql) {
+        if (boundSql == null) {
+            return null;
+        }
         //获得 预编译后的 sql
         String resultSql = boundSql.getSql();
         //将'  ？  '和"  ？  " 替换为 ？
@@ -94,19 +108,17 @@ public class MyBatisUtil {
                     String propertyName = parameterMapping.getProperty();
                     if (boundSql.hasAdditionalParameter(propertyName)) {
                         value = boundSql.getAdditionalParameter(propertyName);
-                    } else if (parameterObject == null) {
+                    } else if (boundSql.getParameterObject() == null) {
                         value = null;
                     } else {
-                        MetaObject metaObject = configuration.newMetaObject(parameterObject);
+                        MetaObject metaObject = configuration.newMetaObject(boundSql.getParameterObject());
                         value = metaObject.getValue(propertyName);
                     }
                     executeSql = executeSql.replaceFirst("[?]", value instanceof String ? "'" + value + "'" : String.valueOf(value));
                 }
             }
         }
-        //格式化 sql 移除多余空格
-        //log.info("removeExtraWhitespace -> executeSql: {}", SqlSourceBuilder.removeExtraWhitespaces(executeSql));
-        return SqlSourceBuilder.removeExtraWhitespaces(executeSql);
+        return executeSql;
     }
 
 
@@ -142,7 +154,6 @@ public class MyBatisUtil {
         System.out.println(idAndSql);
 
 
-
     }
 
     /**
@@ -176,6 +187,7 @@ public class MyBatisUtil {
 
     /**
      * 获得xml 中 父节点参数id 对应的原始Xml字符串
+     *
      * @param nodeList
      * @return
      */
@@ -230,6 +242,7 @@ public class MyBatisUtil {
 
     /**
      * 获得某个节点 原始(解析前)的xml字符串
+     *
      * @param node
      * @return
      */
