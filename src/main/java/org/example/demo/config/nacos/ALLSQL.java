@@ -21,12 +21,12 @@ public class ALLSQL {
     private static final Map<String, Map<String, Map<String, String>>> sqlMap = new ConcurrentHashMap<>();
 
     public static void addSql(String key, String allXmlSql) {
-        log.error("尝试加载 nacos sql dataId={} ",key);
+        log.info("尝试加载 nacos sql dataId={} ",key);
         if (StringUtils.isNoneBlank(key, allXmlSql)) {
             Map<String, Map<String, String>> stringMapMap = MyBatisUtil.selectParseXML(allXmlSql);
             if (MapUtil.isNotEmpty(stringMapMap)) {
                 sqlMap.put(key, stringMapMap);
-                log.error("加载成功 nacos sql sqlMapper={} ", JSON.toJSONString(stringMapMap));
+                log.info("加载成功 nacos sql sqlMapper={} ", JSON.toJSONString(stringMapMap));
             }
         }
     }

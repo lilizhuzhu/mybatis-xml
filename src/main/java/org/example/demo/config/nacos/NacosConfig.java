@@ -30,7 +30,7 @@ public class NacosConfig {
         // initConfig("catEyeAbnormalOrderManageExportAdbSqlNewOrderFor363000");
         initConfig("testSql", "DEFAULT_GROUP");
         initConfig("xml-catEyeAbnormalOrderManageExportAdbSqlNewOrderFor363000", "DEFAULT_GROUP");
-        log.error("nacos sql 全部加载完成");
+        log.info("nacos sql 全部加载完成");
     }
 
     public void initConfig(String dataId) throws Exception {

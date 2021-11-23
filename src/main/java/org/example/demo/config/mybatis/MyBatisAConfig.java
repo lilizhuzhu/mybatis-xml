@@ -77,9 +77,9 @@ public class MyBatisAConfig {
         factoryBean.setDataSource(dataSource);
         Resource[] mapperXmlLocation = new PathMatchingResourcePatternResolver().getResources(MAPPER_XML_LOCATIONS);
 
-        log.error("mapper xml 加载中 {} ...", DATA_SOURCE_NAME);
+        log.info("mapper xml 加载中 {} ...", DATA_SOURCE_NAME);
         factoryBean.setMapperLocations(mapperXmlLocation);
-        Arrays.stream(mapperXmlLocation).forEach(r -> log.error("{} 加载完成 {}", DATA_SOURCE_NAME, r));
+        Arrays.stream(mapperXmlLocation).forEach(r -> log.info("{} 加载完成 {}", DATA_SOURCE_NAME, r));
         factoryBean.getObject().getConfiguration().setMapUnderscoreToCamelCase(true);
         factoryBean.getObject().getConfiguration().addInterceptor(new SqlInterceptor());
         factoryBean.getObject().getConfiguration().setCallSettersOnNulls(true);
