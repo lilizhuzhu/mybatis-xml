@@ -24,8 +24,8 @@ public class NacosConfig {
     @PostConstruct
     public void init() throws Exception {
         log.info("加载 nacos sql 中...");
-        initConfig("test2.school", "DEFAULT_GROUP");
-        initConfig("test1.student", "DEFAULT_GROUP");
+        initConfig("mybatis_a.a_student", "mysql.mybatis_a");
+        initConfig("mybatis_b.b_school", "mysql.mybatis_b");
         log.info("nacos sql 全部加载完成");
     }
 
