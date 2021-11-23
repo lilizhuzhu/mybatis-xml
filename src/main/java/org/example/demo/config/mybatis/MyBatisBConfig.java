@@ -27,14 +27,14 @@ import java.util.Arrays;
 @MapperScan(basePackages = MyBatisBConfig.TYPE_ALIASES_PACKAGE, sqlSessionFactoryRef = MyBatisBConfig.SQL_SESSION_FACTORY_NAME)
 public class MyBatisBConfig {
 
-    private final static String DATA_BASE_NAME = "mysql_test2";
-    protected final static String TYPE_ALIASES_PACKAGE = "org.example.demo.mapper.test2";
-    private final static String MAPPER_XML_LOCATIONS = "classpath*:org/example/demo/mapper/test2/xml/*Mapper.xml";
+    private final static String DATA_BASE_NAME = "mysql_mybatis_b";
+    protected final static String TYPE_ALIASES_PACKAGE = "org.example.demo.mapper.b";
+    private final static String MAPPER_XML_LOCATIONS = "classpath*:org/example/demo/mapper/b/xml/*Mapper.xml";
     private final static String DATA_SOURCE_NAME = DATA_BASE_NAME + "_DATA_SOURCE_NAME";
     protected final static String SQL_SESSION_FACTORY_NAME = DATA_BASE_NAME + "_SQL_SESSION_FACTORY_NAME";
     private final static String SQL_SESSION_TEMPLATE_NAME = DATA_BASE_NAME + "_SQL_SESSION_TEMPLATE_NAME";
 
-    private final static String url="jdbc:p6spy:mysql://localhost:3306/test2?characterEncoding=UTF-8";
+    private final static String url="jdbc:p6spy:mysql://localhost:3306/mybatis_b?characterEncoding=UTF-8";
     private final static String username="root";
     private final static String password="root_1234";
     private final static String DRIVER_CLASS_NAME= P6SpyDriver.class.getName();

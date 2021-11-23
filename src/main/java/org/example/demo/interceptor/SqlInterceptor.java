@@ -28,7 +28,7 @@ public class SqlInterceptor implements Interceptor {
         BoundSql boundSql = statementHandler.getBoundSql();
 
         String sql = boundSql.getSql();
-        //log.info("执行的sql 为： {}", sql);
+        log.info("执行的sql 为： {}", sql);
         return invocation.proceed();
 
     }

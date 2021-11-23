@@ -2,10 +2,10 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="org.example.demo.mapper.test2.CommonBMapper">
+<mapper namespace="org.example.demo.mapper.a.CommonAMapper">
 
 
-    <select id="sqlQueryByCondition" resultType="java.util.LinkedHashMap" parameterType="org.example.demo.common.SqlQueryRequest">
+    <select id="sqlQueryByCondition" resultType="map" parameterType="org.example.demo.common.SqlQueryRequest">
         ${sql}
         limit #{pageStart}, #{pageSize}
     </select>

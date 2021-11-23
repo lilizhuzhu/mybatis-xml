@@ -3,7 +3,7 @@ package org.example.demo.controller;
 import org.apache.commons.lang3.StringUtils;
 import org.example.demo.common.SqlQueryRequest;
 import org.example.demo.config.nacos.ALLSQL;
-import org.example.demo.mapper.test1.CommonAMapper;
+import org.example.demo.mapper.a.CommonAMapper;
 import org.example.demo.util.MyBatisUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,7 +31,7 @@ public class TestController {
         return ALLSQL.finaAll();
     }
 
-    @GetMapping("/find/{key}/{curd}/{id}")
+    @PostMapping("/find/{key}/{curd}/{id}")
     public String find(@PathVariable String key,@PathVariable String curd,@PathVariable String id){
         return ALLSQL.findByKey(key,curd,id);
     }

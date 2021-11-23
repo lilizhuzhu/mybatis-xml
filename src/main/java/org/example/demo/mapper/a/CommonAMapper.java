@@ -1,9 +1,8 @@
-package org.example.demo.mapper.test1;
+package org.example.demo.mapper.a;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.example.demo.common.SqlQueryRequest;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 

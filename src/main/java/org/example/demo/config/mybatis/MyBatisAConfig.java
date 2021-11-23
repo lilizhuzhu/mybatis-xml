@@ -1,6 +1,7 @@
 package org.example.demo.config.mybatis;
 
 import com.alibaba.druid.pool.DruidDataSource;
+import com.mysql.cj.jdbc.Driver;
 import com.p6spy.engine.spy.P6SpyDriver;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -27,14 +28,14 @@ import java.util.Arrays;
 @MapperScan(basePackages = MyBatisAConfig.TYPE_ALIASES_PACKAGE, sqlSessionFactoryRef = MyBatisAConfig.SQL_SESSION_FACTORY_NAME)
 public class MyBatisAConfig {
 
-    private final static String DATA_BASE_NAME = "mysql_test1";
-    protected final static String TYPE_ALIASES_PACKAGE = "org.example.demo.mapper.test1";
-    private final static String MAPPER_XML_LOCATIONS = "classpath*:org/example/demo/mapper/test1/xml/*Mapper.xml";
+    private final static String DATA_BASE_NAME = "mysql_mybatis_a";
+    protected final static String TYPE_ALIASES_PACKAGE = "org.example.demo.mapper.a";
+    private final static String MAPPER_XML_LOCATIONS = "classpath*:org/example/demo/mapper/a/xml/*Mapper.xml";
     private final static String DATA_SOURCE_NAME = DATA_BASE_NAME + "_DATA_SOURCE_NAME";
     protected final static String SQL_SESSION_FACTORY_NAME = DATA_BASE_NAME + "_SQL_SESSION_FACTORY_NAME";
     private final static String SQL_SESSION_TEMPLATE_NAME = DATA_BASE_NAME + "_SQL_SESSION_TEMPLATE_NAME";
 
-    private final static String url="jdbc:p6spy:mysql://localhost:3306/test1?characterEncoding=UTF-8";
+    private final static String url="jdbc:p6spy:mysql://localhost:3306/mybatis_a?characterEncoding=UTF-8";
     private final static String username="root";
     private final static String password="root_1234";
     private final static String DRIVER_CLASS_NAME= P6SpyDriver.class.getName();

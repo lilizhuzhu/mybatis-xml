@@ -1,4 +1,4 @@
-package org.example.demo.mapper.test2;
+package org.example.demo.mapper.b;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.example.demo.common.SqlQueryRequest;
