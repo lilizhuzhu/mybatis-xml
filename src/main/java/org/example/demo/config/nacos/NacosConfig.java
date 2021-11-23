@@ -24,18 +24,9 @@ public class NacosConfig {
     @PostConstruct
     public void init() throws Exception {
         log.info("加载 nacos sql 中...");
-        // initConfig("catEyeAbnormalOrderManageExportAdbSqlFor363000");
-        // initConfig("catEyeAbnormalOrderManageExportAdbSqlNew");
-        //  initConfig("catEyeAbnormalOrderManageExportAdbSqlNewOrder");
-        // initConfig("catEyeAbnormalOrderManageExportAdbSqlNewOrderFor363000");
-        initConfig("testSql", "DEFAULT_GROUP");
-        initConfig("xml-catEyeAbnormalOrderManageExportAdbSqlNewOrderFor363000", "DEFAULT_GROUP");
+        initConfig("test2.school", "DEFAULT_GROUP");
+        initConfig("test1.student", "DEFAULT_GROUP");
         log.info("nacos sql 全部加载完成");
-    }
-
-    public void initConfig(String dataId) throws Exception {
-        String group = "xml.sql";
-        initConfig(dataId, group);
     }
 
     public void initConfig(String dataId, String group) throws Exception {
