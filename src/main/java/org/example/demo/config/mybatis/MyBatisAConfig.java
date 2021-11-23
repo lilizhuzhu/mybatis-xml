@@ -1,10 +1,10 @@
 package org.example.demo.config.mybatis;
 
 import com.alibaba.druid.pool.DruidDataSource;
-import com.mysql.cj.jdbc.Driver;
-import lombok.extern.java.Log;
+import com.p6spy.engine.spy.P6SpyDriver;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.example.demo.interceptor.SqlInterceptor;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.mybatis.spring.annotation.MapperScan;
@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 import javax.sql.DataSource;
@@ -25,23 +24,28 @@ import java.util.Arrays;
  */
 @Slf4j
 @Configuration
-@MapperScan(basePackages = MyBatisConfig.TYPE_ALIASES_PACKAGE,sqlSessionFactoryRef=MyBatisConfig.SQL_SESSION_FACTORY_NAME)
-public class MyBatisConfig {
+@MapperScan(basePackages = MyBatisAConfig.TYPE_ALIASES_PACKAGE, sqlSessionFactoryRef = MyBatisAConfig.SQL_SESSION_FACTORY_NAME)
+public class MyBatisAConfig {
 
+    private final static String DATA_BASE_NAME = "mysql_test1";
     protected final static String TYPE_ALIASES_PACKAGE = "org.example.demo.mapper.test1";
     private final static String MAPPER_XML_LOCATIONS = "classpath*:org/example/demo/mapper/test1/xml/*Mapper.xml";
-    private final static String DATA_SOURCE_NAME = "mysql-test1" + "DATA_SOURCE_NAME";
-    protected final static String SQL_SESSION_FACTORY_NAME = "mysql-test1" + "SQL_SESSION_FACTORY_NAME";
-    private final static String SQL_SESSION_TEMPLATE_NAME = "mysql-test1" + "SQL_SESSION_TEMPLATE_NAME";
+    private final static String DATA_SOURCE_NAME = DATA_BASE_NAME + "_DATA_SOURCE_NAME";
+    protected final static String SQL_SESSION_FACTORY_NAME = DATA_BASE_NAME + "_SQL_SESSION_FACTORY_NAME";
+    private final static String SQL_SESSION_TEMPLATE_NAME = DATA_BASE_NAME + "_SQL_SESSION_TEMPLATE_NAME";
+
+    private final static String url="jdbc:p6spy:mysql://localhost:3306/test1?characterEncoding=UTF-8";
+    private final static String username="root";
+    private final static String password="root_1234";
+    private final static String DRIVER_CLASS_NAME= P6SpyDriver.class.getName();
 
     @Bean(name = DATA_SOURCE_NAME, initMethod = "init", destroyMethod = "close")
     public DruidDataSource dataSource() throws Exception {
         DruidDataSource dataSource = new DruidDataSource();
-        //dataSource.setDriverClassName(Driver.class.getName());
-        dataSource.setDriverClassName(com.p6spy.engine.spy.P6SpyDriver.class.getName());
-        dataSource.setUrl("jdbc:p6spy:mysql://localhost:3306/test1?characterEncoding=UTF-8");
-        dataSource.setUsername("root");
-        dataSource.setPassword("root_1234");
+        dataSource.setDriverClassName(DRIVER_CLASS_NAME);
+        dataSource.setUrl(url);
+        dataSource.setUsername(username);
+        dataSource.setPassword(password);
 
 
         dataSource.setInitialSize(5);
@@ -73,9 +77,9 @@ public class MyBatisConfig {
         factoryBean.setDataSource(dataSource);
         Resource[] mapperXmlLocation = new PathMatchingResourcePatternResolver().getResources(MAPPER_XML_LOCATIONS);
 
-        log.error("mapper xml 加载中 {} ...",DATA_SOURCE_NAME);
+        log.error("mapper xml 加载中 {} ...", DATA_SOURCE_NAME);
         factoryBean.setMapperLocations(mapperXmlLocation);
-        Arrays.stream(mapperXmlLocation).forEach(r->log.error("{} 加载完成 {}",DATA_SOURCE_NAME,r));
+        Arrays.stream(mapperXmlLocation).forEach(r -> log.error("{} 加载完成 {}", DATA_SOURCE_NAME, r));
         factoryBean.getObject().getConfiguration().setMapUnderscoreToCamelCase(true);
         factoryBean.getObject().getConfiguration().addInterceptor(new SqlInterceptor());
         factoryBean.getObject().getConfiguration().setCallSettersOnNulls(true);

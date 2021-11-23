@@ -3,7 +3,7 @@ package org.example.demo.controller;
 import org.apache.commons.lang3.StringUtils;
 import org.example.demo.common.SqlQueryRequest;
 import org.example.demo.config.nacos.ALLSQL;
-import org.example.demo.mapper.test1.CommonMapper;
+import org.example.demo.mapper.test1.CommonAMapper;
 import org.example.demo.util.MyBatisUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,7 +23,7 @@ import java.util.Map;
 @RestController
 public class TestController {
     @Autowired
-   private CommonMapper commonMapper;
+   private CommonAMapper commonAMapper;
 
 
     @GetMapping("findAll")
@@ -43,12 +43,12 @@ public class TestController {
         if (StringUtils.isNotBlank(sql)){
             SqlQueryRequest sqlQueryRequest = new SqlQueryRequest();
             sqlQueryRequest.setSql(MyBatisUtil.parseDynamicXMLFormXmlStr(sql, map));
-            return commonMapper.sqlQueryByCondition(sqlQueryRequest);
+            return commonAMapper.sqlQueryByCondition(sqlQueryRequest);
         }
         return sql;
     }
     @GetMapping("queryList")
     public Object queryList(){
-      return   commonMapper.queryList();
+      return   commonAMapper.queryList();
     }
 }

@@ -13,7 +13,7 @@ import java.util.Map;
  * @since 2021/11/20
  */
 @Mapper
-public interface CommonMapper {
+public interface CommonAMapper {
     List<Map<String, Object>> sqlQueryByCondition(SqlQueryRequest request);
     List<Map<String,Object>> queryList();
 }
