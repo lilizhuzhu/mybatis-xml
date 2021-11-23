@@ -15,5 +15,4 @@ import java.util.Map;
 @Mapper
 public interface CommonAMapper {
     List<Map<String, Object>> sqlQueryByCondition(SqlQueryRequest request);
-    List<Map<String,Object>> queryList();
 }

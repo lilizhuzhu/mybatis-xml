@@ -32,9 +32,8 @@ public class TestController {
     }
 
     @GetMapping("/find/{key}/{curd}/{id}")
-    public Object find(@PathVariable String key,@PathVariable String curd,@PathVariable String id){
-        String catEyeAbnormalOrderManageExportAdbSqlFor363000 = ALLSQL.findByKey(key,curd,id);
-        return catEyeAbnormalOrderManageExportAdbSqlFor363000;
+    public String find(@PathVariable String key,@PathVariable String curd,@PathVariable String id){
+        return ALLSQL.findByKey(key,curd,id);
     }
 
     @PostMapping("/run/{key}/{curd}/{id}")
@@ -46,9 +45,5 @@ public class TestController {
             return commonAMapper.sqlQueryByCondition(sqlQueryRequest);
         }
         return sql;
-    }
-    @GetMapping("queryList")
-    public Object queryList(){
-      return   commonAMapper.queryList();
     }
 }

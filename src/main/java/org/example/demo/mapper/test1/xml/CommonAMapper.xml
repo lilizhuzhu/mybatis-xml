@@ -9,8 +9,4 @@
         ${sql}
         limit #{pageStart}, #{pageSize}
     </select>
-    <select id="queryList" resultType="java.util.Map">
-        select * from people
-        WHERE  address = "蜀国"
-    </select>
 </mapper>
