@@ -62,7 +62,7 @@ public class TestController {
     }
 
     @PostMapping("fileUpload")
-    public String findqqq(MultipartFile file) throws Exception {
+    public String fileUpload(MultipartFile file) throws Exception {
 
         CommonsMultipartFile commonsMultipartFile = ((CommonsMultipartFile) file);
         FileItem fileItem =  commonsMultipartFile.getFileItem();

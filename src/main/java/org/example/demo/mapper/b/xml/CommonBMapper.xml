@@ -6,7 +6,6 @@
 
 
     <select id="sqlQueryByCondition" resultType="java.util.LinkedHashMap" parameterType="org.example.demo.common.SqlQueryRequest">
-        ${sql}
-        limit #{pageStart}, #{pageSize}
+        ${sql} limit #{pageStart}, #{pageSize}
     </select>
 </mapper>
