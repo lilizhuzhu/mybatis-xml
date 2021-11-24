@@ -1,5 +1,6 @@
 package org.example.demo.interceptor;
 
+import com.alibaba.fastjson.JSON;
 import org.apache.ibatis.executor.statement.StatementHandler;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.plugin.Interceptor;
@@ -27,8 +28,9 @@ public class SqlInterceptor implements Interceptor {
         StatementHandler statementHandler = (StatementHandler) target;
 
         BoundSql boundSql = statementHandler.getBoundSql();
-        log.info("执行的sql 为：{}", MyBatisUtil.getExecuteSql(boundSql));
-        return invocation.proceed();
+        Object result = invocation.proceed();
+        log.info("执行的sql为：{} ,\n 结果为: {}", MyBatisUtil.getExecuteSql(boundSql), JSON.toJSONString(result));
+        return result;
 
     }
 

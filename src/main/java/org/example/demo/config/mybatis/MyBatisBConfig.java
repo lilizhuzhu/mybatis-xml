@@ -34,7 +34,7 @@ public class MyBatisBConfig {
     protected final static String SQL_SESSION_FACTORY_NAME = DATA_BASE_NAME + "_SQL_SESSION_FACTORY_NAME";
     private final static String SQL_SESSION_TEMPLATE_NAME = DATA_BASE_NAME + "_SQL_SESSION_TEMPLATE_NAME";
 
-    private final static String url="jdbc:p6spy:mysql://localhost:3306/mybatis_b?characterEncoding=UTF-8";
+    private final static String url="jdbc:mysql://localhost:3306/mybatis_b?characterEncoding=UTF-8";
     private final static String username="root";
     private final static String password="root_1234";
     private final static String DRIVER_CLASS_NAME= Driver.class.getName();
