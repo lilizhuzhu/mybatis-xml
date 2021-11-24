@@ -22,7 +22,7 @@ public class StudentService {
         if (request==null){
             return null;
         }
-        request.setUseDbCode(DbCode.DB_B);
+        request.setUseDbCode(DbCode.DB_A);
         List<LinkedHashMap<String, Object>> linkedHashMaps = commonAMapper.sqlQueryByCondition(request);
         return linkedHashMaps;
     }
