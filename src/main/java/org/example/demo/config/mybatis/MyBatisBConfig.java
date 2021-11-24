@@ -1,7 +1,7 @@
 package org.example.demo.config.mybatis;
 
 import com.alibaba.druid.pool.DruidDataSource;
-import com.p6spy.engine.spy.P6SpyDriver;
+import com.mysql.cj.jdbc.Driver;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.example.demo.interceptor.SqlInterceptor;
@@ -37,7 +37,7 @@ public class MyBatisBConfig {
     private final static String url="jdbc:p6spy:mysql://localhost:3306/mybatis_b?characterEncoding=UTF-8";
     private final static String username="root";
     private final static String password="root_1234";
-    private final static String DRIVER_CLASS_NAME= P6SpyDriver.class.getName();
+    private final static String DRIVER_CLASS_NAME= Driver.class.getName();
 
     @Bean(name = DATA_SOURCE_NAME, initMethod = "init", destroyMethod = "close")
     public DruidDataSource dataSource() throws Exception {

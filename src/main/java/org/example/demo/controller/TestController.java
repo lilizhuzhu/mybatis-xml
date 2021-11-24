@@ -10,6 +10,7 @@ import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.entity.ContentType;
+import org.example.demo.common.DbCodeEnum;
 import org.example.demo.common.SqlQueryRequest;
 import org.example.demo.config.nacos.ALLSQL;
 import org.example.demo.mapper.a.CommonAMapper;
@@ -25,7 +26,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
+import org.springframework.web.multipart.MultipartResolver;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
+import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import org.springframework.web.multipart.support.StandardMultipartHttpServletRequest;
 
 import javax.servlet.http.HttpServletRequest;
@@ -45,10 +48,7 @@ import java.util.Map;
  */
 @RestController
 public class TestController {
-    @Autowired
-    private CommonAMapper commonAMapper;
-    @Autowired
-    private CommonBMapper commonBMapper;
+
 
 
     @GetMapping("findAll")
@@ -56,6 +56,15 @@ public class TestController {
         return ALLSQL.finaAll();
     }
 
+
+    @GetMapping("/find/{key}")
+    public Object find(@PathVariable String key) {
+        return ALLSQL.findByKey(key);
+    }
+    @GetMapping("/find/{key}/{curd}")
+    public Object find(@PathVariable String key, @PathVariable String curd) {
+        return ALLSQL.findByKey(key,curd);
+    }
     @GetMapping("/find/{key}/{curd}/{id}")
     public String find(@PathVariable String key, @PathVariable String curd, @PathVariable String id) {
         return ALLSQL.findByKey(key, curd, id);
@@ -70,18 +79,18 @@ public class TestController {
         return FileUtils.readFileToString(storeLocation);
     }
 
-    @PostMapping("/run/{mapper}/{key}/{curd}/{id}")
-    public Object run(@PathVariable String mapper, @PathVariable String key, @PathVariable String curd, @PathVariable String id, @RequestBody Map<String, Object> map) {
+    @PostMapping("/run/{dbCode}/{key}/{curd}/{id}")
+    public Object run(@PathVariable String dbCode, @PathVariable String key, @PathVariable String curd, @PathVariable String id, @RequestBody Map<String, Object> map) {
         String sql = ALLSQL.findByKey(key, curd, id);
         if (StringUtils.isNotBlank(sql)) {
             SqlQueryRequest sqlQueryRequest = new SqlQueryRequest();
             sqlQueryRequest.setSql(MyBatisUtil.parseDynamicXMLFormXmlStr(sql, map));
-            if (mapper.equals("a")) {
-                return commonAMapper.sqlQueryByCondition(sqlQueryRequest);
+
+            DbCodeEnum dbCodeEnum = DbCodeEnum.getEnumByName(dbCode);
+            if (dbCodeEnum==null){
+                return "dbCode错误";
             }
-            if (mapper.equals("b")) {
-                return commonBMapper.sqlQueryByCondition(sqlQueryRequest);
-            }
+            return dbCodeEnum.getCommonMapper().sqlQueryByCondition(sqlQueryRequest);
         }
         return sql;
     }

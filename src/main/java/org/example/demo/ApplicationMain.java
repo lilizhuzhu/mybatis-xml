@@ -27,12 +27,12 @@ public class ApplicationMain {
     }
 
 
-    @Bean(name = "multipartResolver")
+    /*@Bean(name = "multipartResolver")
     public MultipartResolver multipartResolver(MultipartProperties multipartProperties){
         CommonsMultipartResolver resolver = new CommonsMultipartResolver();
         resolver.setResolveLazily(multipartProperties.isResolveLazily());
         resolver.setMaxInMemorySize(-1);
         return resolver;
-    }
+    }*/
 
 }

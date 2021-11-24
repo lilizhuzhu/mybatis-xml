@@ -2,6 +2,7 @@ package org.example.demo.mapper.b;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.example.demo.common.SqlQueryRequest;
+import org.example.demo.mapper.CommonMapper;
 
 import java.util.List;
 import java.util.LinkedHashMap;
@@ -12,6 +13,6 @@ import java.util.LinkedHashMap;
  * @since 2021/11/23
  */
 @Mapper
-public interface CommonBMapper {
-    List<LinkedHashMap<String, Object>> sqlQueryByCondition(SqlQueryRequest request);
+public interface CommonBMapper extends CommonMapper {
+
 }
