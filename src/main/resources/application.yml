@@ -3,3 +3,9 @@ server:
 nacos:
   config:
     server-addr: 127.0.0.1:8851,127.0.0.1:8852,127.0.0.1:8853
+
+spring:
+  devtools:
+    restart:
+      enabled: true
+      additional-paths: src/main/java

@@ -1,8 +1,18 @@
 package org.example.demo;
 
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.web.servlet.MultipartAutoConfiguration;
+import org.springframework.boot.autoconfigure.web.servlet.MultipartProperties;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.core.Ordered;
+import org.springframework.web.multipart.MultipartResolver;
+import org.springframework.web.multipart.commons.CommonsMultipartResolver;
+import org.springframework.web.multipart.support.MultipartFilter;
+import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 
 /**
  * @author nmy
@@ -14,5 +24,26 @@ import org.springframework.context.annotation.ComponentScan;
 public class ApplicationMain {
     public static void main(String[] args) {
         SpringApplication.run(ApplicationMain.class,args);
+    }
+
+
+  /*  @Bean(name = "multipartResolver")
+    public MultipartResolver multipartResolver(MultipartProperties multipartProperties){
+        CommonsMultipartResolver resolver = new CommonsMultipartResolver();
+        resolver.setResolveLazily(multipartProperties.isResolveLazily());
+        resolver.setMaxInMemorySize(-1);
+        return resolver;
+    }*/
+
+    @Bean
+    public FilterRegistrationBean filterTestRegistrationBean(){
+
+        FilterRegistrationBean filterRegistry = new FilterRegistrationBean();
+        filterRegistry.setOrder(Ordered.HIGHEST_PRECEDENCE + 3);
+        //注册过滤器
+        filterRegistry.setFilter(new MultipartFilter());
+        filterRegistry.addUrlPatterns("/*");
+        filterRegistry.setName("multipartFilter");
+        return filterRegistry;
     }
 }

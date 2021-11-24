@@ -86,6 +86,7 @@ public class MyBatisUtil {
     }
 
 
+
     /**
      * 获得最后执行的sql 将 ？变为 参数
      * @param boundSql
@@ -93,6 +94,7 @@ public class MyBatisUtil {
      */
     public static String getExecuteSql(BoundSql boundSql) {
         if (boundSql == null) {
+            log.error("sql ");
             return null;
         }
         //获得 预编译后的 sql
@@ -152,6 +154,7 @@ public class MyBatisUtil {
         NodeList selectList = document.getElementsByTagName("select");
         Map<String, String> idAndSql = getIdAndXmlSql(selectList);
         System.out.println(idAndSql);
+
 
 
     }
