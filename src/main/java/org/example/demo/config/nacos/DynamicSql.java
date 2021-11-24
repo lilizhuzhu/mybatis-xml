@@ -21,7 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since 2021/11/17
  */
 @Slf4j
-public class ALLSQL {
+public class DynamicSql {
 
     private static final Map<String, Map<String, Map<String, String>>> sqlMap = new ConcurrentHashMap<>();
 

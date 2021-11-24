@@ -4,7 +4,6 @@ import com.alibaba.nacos.api.annotation.NacosInjected;
 import com.alibaba.nacos.api.config.ConfigService;
 import com.alibaba.nacos.api.config.listener.AbstractListener;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -31,11 +30,11 @@ public class NacosConfig {
 
     public void initConfig(String dataId, String group) throws Exception {
         String dataXML = configService.getConfig(dataId, group, 5000);
-        ALLSQL.addSql(dataId, dataXML);
+        DynamicSql.addSql(dataId, dataXML);
         configService.addListener(dataId, group, new AbstractListener() {
             @Override
             public void receiveConfigInfo(String configInfo) {
-                ALLSQL.addSql(dataId, configInfo);
+                DynamicSql.addSql(dataId, configInfo);
             }
         });
     }

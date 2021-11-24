@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Statement;
+import java.time.LocalDateTime;
 import java.util.Properties;
 
 @Intercepts({@Signature(type = StatementHandler.class, method = "query", args = {Statement.class, ResultHandler.class}),
@@ -29,7 +30,10 @@ public class SqlInterceptor implements Interceptor {
 
         BoundSql boundSql = statementHandler.getBoundSql();
         Object result = invocation.proceed();
-        log.info("执行的sql为：{} ,\n 结果为: {}", MyBatisUtil.getExecuteSql(boundSql), JSON.toJSONString(result));
+        log.error("当前时间 {} \n 执行的sql为：{} \n 结果为: {}",
+                LocalDateTime.now().toString().replace('T',' '),
+                MyBatisUtil.getExecuteSql(boundSql),
+                JSON.toJSONString(result));
         return result;
 
     }
