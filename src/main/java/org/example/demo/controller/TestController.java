@@ -62,23 +62,12 @@ public class TestController {
     }
 
     @PostMapping("fileUpload")
-    public String findqqq(MultipartHttpServletRequest request) throws Exception {
-        String pathInfo = request.getPathInfo();
-        String pathTranslated = request.getPathTranslated();
+    public String findqqq(MultipartFile file) throws Exception {
 
-
-
-     /*   for (Part part : request.getParts()) {
-            ApplicationPart part1 = (ApplicationPart) part;
-            if (request.getFile(part.getName()) != null) {
-
-            }
-        }*/
-    /*    CommonsMultipartFile commonsMultipartFile = ((CommonsMultipartFile) file);
+        CommonsMultipartFile commonsMultipartFile = ((CommonsMultipartFile) file);
         FileItem fileItem =  commonsMultipartFile.getFileItem();
         File storeLocation = ((DiskFileItem) fileItem).getStoreLocation();
-        return FileUtils.readFileToString(storeLocation);*/
-        return null;
+        return FileUtils.readFileToString(storeLocation);
     }
 
     @PostMapping("/run/{mapper}/{key}/{curd}/{id}")

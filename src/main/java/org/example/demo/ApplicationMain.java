@@ -27,23 +27,12 @@ public class ApplicationMain {
     }
 
 
-  /*  @Bean(name = "multipartResolver")
+    @Bean(name = "multipartResolver")
     public MultipartResolver multipartResolver(MultipartProperties multipartProperties){
         CommonsMultipartResolver resolver = new CommonsMultipartResolver();
         resolver.setResolveLazily(multipartProperties.isResolveLazily());
         resolver.setMaxInMemorySize(-1);
         return resolver;
-    }*/
-
-    @Bean
-    public FilterRegistrationBean filterTestRegistrationBean(){
-
-        FilterRegistrationBean filterRegistry = new FilterRegistrationBean();
-        filterRegistry.setOrder(Ordered.HIGHEST_PRECEDENCE + 3);
-        //注册过滤器
-        filterRegistry.setFilter(new MultipartFilter());
-        filterRegistry.addUrlPatterns("/*");
-        filterRegistry.setName("multipartFilter");
-        return filterRegistry;
     }
+
 }
