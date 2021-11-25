@@ -7,6 +7,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.example.demo.common.DbCodeEnum;
+import org.example.demo.common.SqlQueryRequest;
 import org.example.demo.util.MyBatisUtil;
 
 import java.util.Collections;
@@ -36,7 +38,37 @@ public class DynamicSql {
         }
     }
 
-    public static String findByKey(String key, String curd, String id) {
+    public static Map<String, Map<String, String>> findByKey(String key) {
+        if (StringUtils.isAnyBlank(key)) {
+            return null;
+        }
+        Map<String, Map<String, String>> stringMapMap = sqlMap.get(key);
+        if (MapUtil.isNotEmpty(stringMapMap)) {
+            return JSON.parseObject(JSON.toJSONString(stringMapMap), new TypeReference<Map<String, Map<String, String>>>() {
+            });
+        }
+        return null;
+    }
+
+    public static Map<String, String> findByKeyAndCurd(String key, String curd) {
+        if (StringUtils.isAnyBlank(key, curd)) {
+            return null;
+        }
+        Map<String, Map<String, String>> stringMapMap = sqlMap.get(key);
+        if (MapUtil.isNotEmpty(stringMapMap)) {
+            Map<String, String> map = stringMapMap.get(curd);
+            if (MapUtil.isNotEmpty(map)) {
+                return JSON.parseObject(JSON.toJSONString(map), new TypeReference<Map<String, String>>() {
+                });
+            }
+        }
+        return null;
+    }
+
+    public static String findByKeyAndCurdAndId(String key, String curd, String id) {
+        if (StringUtils.isAnyBlank(key, curd, id)) {
+            return null;
+        }
         Map<String, Map<String, String>> stringMapMap = sqlMap.get(key);
         if (MapUtil.isNotEmpty(stringMapMap)) {
             Map<String, String> map = stringMapMap.get(curd);
@@ -47,28 +79,31 @@ public class DynamicSql {
         return null;
     }
 
-    public static Map<String, Map<String, String>> findByKey(String key) {
-        Map<String, Map<String, String>> stringMapMap = sqlMap.get(key);
-        if (MapUtil.isNotEmpty(stringMapMap)) {
-            return JSON.parseObject(JSON.toJSONString(stringMapMap), new TypeReference<Map<String, Map<String, String>>>() {});
-        }
-        return null;
-    }
-
-    public static Map<String, String> findByKey(String key, String curd) {
-        Map<String, Map<String, String>> stringMapMap = sqlMap.get(key);
-        if (MapUtil.isNotEmpty(stringMapMap)) {
-            Map<String, String> map = stringMapMap.get(curd);
-            if (MapUtil.isNotEmpty(map)) {
-                return JSON.parseObject(JSON.toJSONString(map), new TypeReference<Map<String, String>>() {});
-            }
-        }
-        return null;
-    }
-
     public static Map<String, Map<String, Map<String, String>>> finaAll() {
-        Map<String, Map<String, Map<String, String>>> map = new HashMap<>();
-        map.putAll(sqlMap);
-        return map;
+        return JSON.parseObject(JSON.toJSONString(sqlMap), new TypeReference<Map<String, Map<String, Map<String, String>>>>() {
+        });
+    }
+
+    /**
+     * 返回解析好的sql
+     * @param key
+     * @param curd
+     * @param id
+     * @param parameterObject
+     * @return
+     */
+    public static String dynamicParseAndAssignmentSqlByStorage(String key, String curd, String id, Object parameterObject) {
+        String xmlSql = findByKeyAndCurdAndId(key, curd, id);
+        if (StringUtils.isAnyBlank(xmlSql)) {
+            log.error("没有该sql");
+            return null;
+        }
+       return MyBatisUtil.parseDynamicXMLFormXmlStr(xmlSql,parameterObject);
+    }
+
+    public static void  executeSql(SqlQueryRequest sqlQueryRequest){
+        DbCodeEnum useDbCode = sqlQueryRequest.getUseDbCode();
+        useDbCode.getCommonMapper().sqlQueryByCondition(sqlQueryRequest);
+
     }
 }

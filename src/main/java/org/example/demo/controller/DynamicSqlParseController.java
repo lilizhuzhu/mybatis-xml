@@ -28,33 +28,36 @@ public class DynamicSqlParseController {
     public Object findAll() {
         return DynamicSql.finaAll();
     }
+
     @GetMapping("/find/{key}")
     public Object find(@PathVariable String key) {
         return DynamicSql.findByKey(key);
     }
+
     @GetMapping("/find/{key}/{curd}")
     public Object find(@PathVariable String key, @PathVariable String curd) {
-        return DynamicSql.findByKey(key,curd);
-    }
-    @GetMapping("/find/{key}/{curd}/{id}")
-    public String find(@PathVariable String key, @PathVariable String curd, @PathVariable String id) {
-        return DynamicSql.findByKey(key, curd, id);
+        return DynamicSql.findByKeyAndCurd(key, curd);
     }
 
+    @GetMapping("/find/{key}/{curd}/{id}")
+    public String find(@PathVariable String key, @PathVariable String curd, @PathVariable String id) {
+        return DynamicSql.findByKeyAndCurdAndId(key, curd, id);
+    }
 
 
     @PostMapping("/run/{dbCode}/{key}/{curd}/{id}")
     public Object run(@PathVariable String dbCode, @PathVariable String key, @PathVariable String curd, @PathVariable String id, @RequestBody Map<String, Object> map) {
-        String sql = DynamicSql.findByKey(key, curd, id);
+        DbCodeEnum dbCodeEnum = DbCodeEnum.getEnumByName(dbCode);
+        if (dbCodeEnum == null) {
+            return "dbCode错误";
+        }
+        String sql = DynamicSql.dynamicParseAndAssignmentSqlByStorage(key, curd, id, map);
         if (StringUtils.isNotBlank(sql)) {
             SqlQueryRequest sqlQueryRequest = new SqlQueryRequest();
-            sqlQueryRequest.setSql(MyBatisUtil.parseDynamicXMLFormXmlStr(sql, map));
-            DbCodeEnum dbCodeEnum = DbCodeEnum.getEnumByName(dbCode);
-            if (dbCodeEnum==null){
-                return "dbCode错误";
-            }
-            return dbCodeEnum.getCommonMapper().sqlQueryByCondition(sqlQueryRequest);
+            sqlQueryRequest.setSql(sql);
+            sqlQueryRequest.setUseDbCode(dbCodeEnum);
+            return sqlQueryRequest.queryExecute();
         }
-        return sql;
+        return "sql 有误";
     }
 }
