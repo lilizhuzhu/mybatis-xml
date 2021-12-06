@@ -86,7 +86,11 @@ public class MyBatisUtil {
         //格式化 sql 移除多余空格
         return removeExtraWhitespaces(executeSql);
     }
+
     public static String removeExtraWhitespaces(String original) {
+        if (StringUtils.isBlank(original)){
+            return StringUtils.EMPTY;
+        }
         StringTokenizer tokenizer = new StringTokenizer(original);
         StringBuilder builder = new StringBuilder();
         boolean hasMoreTokens = tokenizer.hasMoreTokens();
@@ -219,7 +223,7 @@ public class MyBatisUtil {
                     if (node != null) {
                         if (StringUtils.isNoneEmpty(node.getNodeValue(), item.getTextContent())) {
                             // id , 把整个xml字符串 加入
-                            child.put(node.getNodeValue(), getNodeAll(item));
+                            child.put(node.getNodeValue(), removeExtraWhitespaces(getStringByNode(item)));
                         }
                     }
                 }
@@ -262,7 +266,10 @@ public class MyBatisUtil {
      * @param node
      * @return
      */
-    private static String getNodeAll(Node node) {
+    private static String getStringByNode(Node node) {
+        if (node == null) {
+            return StringUtils.EMPTY;
+        }
         StringBuilder xmlStr = new StringBuilder();
 
         //判断是否为节点
@@ -277,7 +284,7 @@ public class MyBatisUtil {
                 Node item = childNodes.item(i);
                 //判断是否为 文本节点
                 if (item.hasAttributes()) {
-                    xmlStr.append(getNodeAll(item));
+                    xmlStr.append(getStringByNode(item));
                 } else {
                     xmlStr.append(item.getTextContent());
                 }
@@ -286,7 +293,7 @@ public class MyBatisUtil {
         if (node.hasAttributes()) {
             xmlStr.append("</" + node.getNodeName() + ">");
         }
-        return removeExtraWhitespaces(xmlStr.toString());
+        return xmlStr.toString();
     }
 
     public static SqlRunner getSqlRunner(String dataSourceName) {
