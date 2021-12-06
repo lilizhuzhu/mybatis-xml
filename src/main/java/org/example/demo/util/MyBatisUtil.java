@@ -3,7 +3,6 @@ package org.example.demo.util;
 
 import cn.hutool.extra.spring.SpringUtil;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.ibatis.builder.SqlSourceBuilder;
 import org.apache.ibatis.jdbc.SqlRunner;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.MappedStatement;
