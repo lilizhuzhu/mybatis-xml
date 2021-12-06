@@ -92,6 +92,7 @@ public class MyBatisUtil {
 
     /**
      * 获得最后执行的sql 将 ？变为 参数
+     *
      * @param boundSql
      * @return
      */
@@ -119,7 +120,7 @@ public class MyBatisUtil {
                         MetaObject metaObject = configuration.newMetaObject(boundSql.getParameterObject());
                         value = metaObject.getValue(propertyName);
                     }
-                   return StringUtils.replaceOnce(executeSql,"?", value instanceof String ? "'" + value + "'" : String.valueOf(value));
+                    executeSql = StringUtils.replaceOnce(executeSql, "?", value instanceof String ? "'" + value + "'" : String.valueOf(value));
                 }
             }
         }
@@ -259,24 +260,22 @@ public class MyBatisUtil {
             xmlStr.append("<" + node.getNodeName() + getNodeParameter(node) + ">");
         }
         NodeList childNodes = node.getChildNodes();
-        //判断是否有子节点
-        if (childNodes == null || childNodes.getLength() == 0) {
-            return xmlStr.toString();
-        }
-        //遍历子节点 从
-        for (int i = 0; i < childNodes.getLength(); i++) {
-            Node item = childNodes.item(i);
-            //判断是否为 文本节点
-            if (DeferredTextImpl.class.isInstance(item)) {
-                xmlStr.append(item.getTextContent());
-            } else {
-                xmlStr.append(getNodeAll(item));
+        //判断如果有子节点
+        if (childNodes != null) {
+            //遍历子节点 从
+            for (int i = 0; i < childNodes.getLength(); i++) {
+                Node item = childNodes.item(i);
+                //判断是否为 文本节点
+                if (DeferredTextImpl.class.isInstance(item)) {
+                    xmlStr.append(item.getTextContent());
+                } else {
+                    xmlStr.append(getNodeAll(item));
+                }
             }
         }
         if (DeferredElementImpl.class.isInstance(node)) {
             xmlStr.append("</" + node.getNodeName() + ">");
         }
-
         return xmlStr.toString();
     }
 
