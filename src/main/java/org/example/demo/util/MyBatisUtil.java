@@ -37,6 +37,8 @@ import java.util.Objects;
 import java.util.StringTokenizer;
 import java.util.UUID;
 
+import static org.w3c.dom.Node.ELEMENT_NODE;
+
 
 public class MyBatisUtil {
     private static final Logger log = LoggerFactory.getLogger(MyBatisUtil.class);
@@ -87,8 +89,14 @@ public class MyBatisUtil {
         return removeExtraWhitespaces(executeSql);
     }
 
+    /**
+     * 移除多余的空格
+     *
+     * @param original
+     * @return
+     */
     public static String removeExtraWhitespaces(String original) {
-        if (StringUtils.isBlank(original)){
+        if (StringUtils.isBlank(original)) {
             return StringUtils.EMPTY;
         }
         StringTokenizer tokenizer = new StringTokenizer(original);
@@ -242,7 +250,7 @@ public class MyBatisUtil {
      */
     private static String getNodeParameter(Node node) {
         StringBuilder parameter = new StringBuilder();
-        if (Objects.nonNull(node) && node.hasAttributes()) {
+        if (Objects.nonNull(node) && (node.getNodeType() == ELEMENT_NODE)) {
             if (node.hasAttributes()) {
                 NamedNodeMap attributes = node.getAttributes();
                 for (int j = 0; j < attributes.getLength(); j++) {
@@ -273,7 +281,7 @@ public class MyBatisUtil {
         StringBuilder xmlStr = new StringBuilder();
 
         //判断是否为节点
-        if (node.hasAttributes()) {
+        if ((node.getNodeType() == ELEMENT_NODE)) {
             xmlStr.append("<" + node.getNodeName() + getNodeParameter(node) + ">");
         }
         NodeList childNodes = node.getChildNodes();
@@ -283,14 +291,14 @@ public class MyBatisUtil {
             for (int i = 0; i < childNodes.getLength(); i++) {
                 Node item = childNodes.item(i);
                 //判断是否为 文本节点
-                if (item.hasAttributes()) {
+                if ((item.getNodeType() == ELEMENT_NODE)) {
                     xmlStr.append(getStringByNode(item));
                 } else {
                     xmlStr.append(item.getTextContent());
                 }
             }
         }
-        if (node.hasAttributes()) {
+        if (node.getNodeType() == ELEMENT_NODE) {
             xmlStr.append("</" + node.getNodeName() + ">");
         }
         return xmlStr.toString();
