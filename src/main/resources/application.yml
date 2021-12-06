@@ -5,10 +5,6 @@ nacos:
     server-addr: 127.0.0.1:8851,127.0.0.1:8852,127.0.0.1:8853
 
 spring:
-  servlet:
-    multipart:
-      max-request-size: 333
-      max-file-size: 22
   devtools:
     restart:
       enabled: true

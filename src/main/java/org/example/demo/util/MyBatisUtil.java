@@ -1,10 +1,12 @@
 package org.example.demo.util;
 
 
+import cn.hutool.extra.spring.SpringUtil;
 import com.sun.org.apache.xerces.internal.dom.DeferredElementImpl;
 import com.sun.org.apache.xerces.internal.dom.DeferredTextImpl;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.builder.SqlSourceBuilder;
+import org.apache.ibatis.jdbc.SqlRunner;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.ParameterMapping;
@@ -24,10 +26,12 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
+import javax.sql.DataSource;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.StringReader;
+import java.sql.SQLException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -86,7 +90,6 @@ public class MyBatisUtil {
     }
 
 
-
     /**
      * 获得最后执行的sql 将 ？变为 参数
      * @param boundSql
@@ -116,7 +119,7 @@ public class MyBatisUtil {
                         MetaObject metaObject = configuration.newMetaObject(boundSql.getParameterObject());
                         value = metaObject.getValue(propertyName);
                     }
-                    executeSql = executeSql.replaceFirst("[?]", value instanceof String ? "'" + value + "'" : String.valueOf(value));
+                   return StringUtils.replaceOnce(executeSql,"?", value instanceof String ? "'" + value + "'" : String.valueOf(value));
                 }
             }
         }
@@ -154,7 +157,6 @@ public class MyBatisUtil {
         NodeList selectList = document.getElementsByTagName("select");
         Map<String, String> idAndSql = getIdAndXmlSql(selectList);
         System.out.println(idAndSql);
-
 
 
     }
@@ -276,6 +278,21 @@ public class MyBatisUtil {
         }
 
         return xmlStr.toString();
+    }
+
+    public static SqlRunner getSqlRunner(String dataSourceName) {
+        Map<String, DataSource> beansOfType = SpringUtil.getBeansOfType(DataSource.class);
+        if (beansOfType != null && beansOfType.size() > 0) {
+            DataSource dataSource = beansOfType.get(dataSourceName);
+            if (dataSource != null) {
+                try {
+                    return new SqlRunner(dataSource.getConnection());
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return null;
     }
 }
 

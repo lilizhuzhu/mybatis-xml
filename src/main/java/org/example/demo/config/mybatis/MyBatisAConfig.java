@@ -30,7 +30,8 @@ public class MyBatisAConfig {
     private final static String DATA_BASE_NAME = "mysql_mybatis_a";
     protected final static String TYPE_ALIASES_PACKAGE = "org.example.demo.mapper.a";
     private final static String MAPPER_XML_LOCATIONS = "classpath*:org/example/demo/mapper/a/xml/*Mapper.xml";
-    private final static String DATA_SOURCE_NAME = DATA_BASE_NAME + "_DATA_SOURCE_NAME";
+
+    public final static String DATA_SOURCE_NAME = DATA_BASE_NAME + "_DATA_SOURCE_NAME";
     protected final static String SQL_SESSION_FACTORY_NAME = DATA_BASE_NAME + "_SQL_SESSION_FACTORY_NAME";
     private final static String SQL_SESSION_TEMPLATE_NAME = DATA_BASE_NAME + "_SQL_SESSION_TEMPLATE_NAME";
 
