@@ -2,8 +2,6 @@ package org.example.demo.util;
 
 
 import cn.hutool.extra.spring.SpringUtil;
-import com.sun.org.apache.xerces.internal.dom.DeferredElementImpl;
-import com.sun.org.apache.xerces.internal.dom.DeferredTextImpl;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.builder.SqlSourceBuilder;
 import org.apache.ibatis.jdbc.SqlRunner;
@@ -37,6 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.StringTokenizer;
 import java.util.UUID;
 
 
@@ -86,9 +85,21 @@ public class MyBatisUtil {
 
         String executeSql = getExecuteSql(boundSql);
         //格式化 sql 移除多余空格
-        return SqlSourceBuilder.removeExtraWhitespaces(executeSql);
+        return removeExtraWhitespaces(executeSql);
     }
-
+    public static String removeExtraWhitespaces(String original) {
+        StringTokenizer tokenizer = new StringTokenizer(original);
+        StringBuilder builder = new StringBuilder();
+        boolean hasMoreTokens = tokenizer.hasMoreTokens();
+        while (hasMoreTokens) {
+            builder.append(tokenizer.nextToken());
+            hasMoreTokens = tokenizer.hasMoreTokens();
+            if (hasMoreTokens) {
+                builder.append(' ');
+            }
+        }
+        return builder.toString();
+    }
 
     /**
      * 获得最后执行的sql 将 ？变为 参数
@@ -228,7 +239,7 @@ public class MyBatisUtil {
      */
     private static String getNodeParameter(Node node) {
         StringBuilder parameter = new StringBuilder();
-        if (Objects.nonNull(node) && DeferredElementImpl.class.isInstance(node)) {
+        if (Objects.nonNull(node) && node.hasAttributes()) {
             if (node.hasAttributes()) {
                 NamedNodeMap attributes = node.getAttributes();
                 for (int j = 0; j < attributes.getLength(); j++) {
@@ -256,7 +267,7 @@ public class MyBatisUtil {
         StringBuilder xmlStr = new StringBuilder();
 
         //判断是否为节点
-        if (DeferredElementImpl.class.isInstance(node)) {
+        if (node.hasAttributes()) {
             xmlStr.append("<" + node.getNodeName() + getNodeParameter(node) + ">");
         }
         NodeList childNodes = node.getChildNodes();
@@ -266,17 +277,17 @@ public class MyBatisUtil {
             for (int i = 0; i < childNodes.getLength(); i++) {
                 Node item = childNodes.item(i);
                 //判断是否为 文本节点
-                if (DeferredTextImpl.class.isInstance(item)) {
-                    xmlStr.append(item.getTextContent());
-                } else {
+                if (item.hasAttributes()) {
                     xmlStr.append(getNodeAll(item));
+                } else {
+                    xmlStr.append(item.getTextContent());
                 }
             }
         }
-        if (DeferredElementImpl.class.isInstance(node)) {
+        if (node.hasAttributes()) {
             xmlStr.append("</" + node.getNodeName() + ">");
         }
-        return xmlStr.toString();
+        return removeExtraWhitespaces(xmlStr.toString());
     }
 
     public static SqlRunner getSqlRunner(String dataSourceName) {
