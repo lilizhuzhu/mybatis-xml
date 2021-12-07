@@ -3,6 +3,8 @@ package org.example.demo.util;
 
 import cn.hutool.extra.spring.SpringUtil;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.builder.BuilderException;
+import org.apache.ibatis.builder.xml.XMLMapperEntityResolver;
 import org.apache.ibatis.jdbc.SqlRunner;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.MappedStatement;
@@ -15,12 +17,15 @@ import org.apache.ibatis.reflection.MetaObject;
 import org.apache.ibatis.scripting.xmltags.XMLScriptBuilder;
 import org.apache.ibatis.session.Configuration;
 
+import org.example.demo.common.IdLabelType;
+import org.example.demo.common.MapperNameSpace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 
 import javax.sql.DataSource;
@@ -32,6 +37,7 @@ import java.sql.SQLException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.StringTokenizer;
@@ -43,7 +49,10 @@ import static org.w3c.dom.Node.ELEMENT_NODE;
 public class MyBatisUtil {
     private static final Logger log = LoggerFactory.getLogger(MyBatisUtil.class);
     private static final Configuration configuration = new Configuration();
+    private static final EntityResolver ENTITY_RESOLVER = new XMLMapperEntityResolver();
     private static DocumentBuilder documentBuilder;
+    private static final String PREFIX = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n" +
+            "<!DOCTYPE mapper PUBLIC \"-//mybatis.org//DTD Mapper 3.0//EN\" \"http://mybatis.org/dtd/mybatis-3-mapper.dtd\">";
 
     static {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -69,15 +78,16 @@ public class MyBatisUtil {
 
         //log.info("原始sqlXml:{} , params:{}", xmlSQL, JSON.toJSONString(parameterObject));
         //解析成xml
-        Document doc = parseXMLDocument(xmlSQL);
+       /* Document doc = parseXMLDocument(xmlSQL);
         if (doc == null) {
             return null;
-        }
+        }*/
+        XPathParser xPathParser = new XPathParser(xmlSQL, false);
+        XNode xNode = xPathParser.evalNode("/");
         //走mybatis 流程 parse成Xnode
-        XNode xNode = new XNode(new XPathParser(doc, false), doc.getFirstChild(), null);
+       // XNode xNode = new XNode(xPathParser, doc.getFirstChild(), null);
         // 之前的所有步骤 都是为了构建 XMLScriptBuilder 对象,
         XMLScriptBuilder xmlScriptBuilder = new XMLScriptBuilder(configuration, xNode);
-
         //解析 静态xml 和动态的xml
         SqlSource sqlSource = xmlScriptBuilder.parseScriptNode();
         MappedStatement ms = new MappedStatement.Builder(configuration, UUID.randomUUID().toString(), sqlSource, null).build();
@@ -164,53 +174,31 @@ public class MyBatisUtil {
     }
 
     public static void main(String[] args) throws Exception {
-        String sql = "<mapper><select uop=\"李四\" id=\"selectAll\">\n" +
-                "select * from people \n" +
-                "<where>\n" +
-                "<if test=\"name!=null and name!=''\">\n" +
-                "  and name=#{name}\n" +
-                "</if>\n" +
-                "<if test=\"age!=null\">\n" +
-                "  and age=#{age}\n" +
-                "</if>\n" +
-                "\n" +
-                "</where>\n" +
-                "</select></mapper>";
-        Document document = documentBuilder.parse(new InputSource(new StringReader(sql)));
-        NodeList selectList = document.getElementsByTagName("select");
-        Map<String, String> idAndSql = getIdAndXmlSql(selectList);
-        System.out.println(idAndSql);
+
 
 
     }
 
-    /**
-     * <select, <id,sql>>
-     *
-     * @param allXml
-     * @return
-     */
-    public static Map<String, Map<String, String>> selectParseXML(String allXml) {
-        if (StringUtils.isBlank(allXml)) {
-            log.error("动态解析的xmlString 不能为空!!");
+    public static MapperNameSpace getYSMapper(String allXml) {
+        if (StringUtils.isBlank(allXml)){
             return null;
         }
-        try {
-            Map<String, Map<String, String>> map = new HashMap<>();
-            Document document = documentBuilder.parse(new InputSource(new StringReader(allXml)));
-            NodeList selectList = document.getElementsByTagName("select");
-            NodeList updateList = document.getElementsByTagName("update");
-            NodeList deleteList = document.getElementsByTagName("delete");
-            NodeList insertList = document.getElementsByTagName("insert");
-            map.put("select", getIdAndXmlSql(selectList));
-            map.put("update", getIdAndXmlSql(updateList));
-            map.put("delete", getIdAndXmlSql(deleteList));
-            map.put("insert", getIdAndXmlSql(insertList));
-            return map;
-        } catch (Exception e) {
-            log.error("XML解析异常,请检查XML格式是否正确,errMsg:{}", e.getMessage());
+        XPathParser xPathParser = new XPathParser(PREFIX+allXml, true, configuration.getVariables(), ENTITY_RESOLVER);
+        XNode mapperNode = xPathParser.evalNode("/mapper");
+        String namespace = mapperNode.getStringAttribute("namespace");
+        if (namespace == null || namespace.isEmpty()) {
+            throw new BuilderException("Mapper's namespace cannot be empty");
         }
-        return null;
+        MapperNameSpace mapperNameSpace = new MapperNameSpace();
+        mapperNameSpace.setNamespace(namespace);
+        List<XNode> curdNodeList = mapperNode.evalNodes("sql|select|insert|update|delete");
+
+        curdNodeList.stream().forEach(curd -> {
+            String id = curd.getStringAttribute("id");
+            String mapperStr =  NodeUtil.getStringByNode(curd.getNode());
+            mapperNameSpace.putIdXml(IdLabelType.valueOf(curd.getName().toUpperCase(Locale.ROOT)), id, mapperStr);
+        });
+        return mapperNameSpace;
     }
 
     /**

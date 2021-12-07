@@ -4,8 +4,15 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.example.demo.mapper.a.CommonAMapper">
 
-
-    <select id="sqlQueryByCondition" resultType="java.util.LinkedHashMap" parameterType="org.example.demo.common.SqlQueryRequest">
-        ${sql} limit #{pageStart}, #{pageSize}
+    <sql id="ee">id,dd</sql>
+    <sql id="bind1">
+        <bind name="op" value="new java.util.Date()"/>
+    </sql>
+    <select id="sqlQueryByCondition" resultType="java.util.LinkedHashMap"
+            parameterType="org.example.demo.common.SqlQueryRequest">
+<include refid="bind1"></include>
+        ${sql} limit
+        #{pageStart},
+        #{pageSize}
     </select>
 </mapper>
