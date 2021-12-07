@@ -14,7 +14,7 @@ import java.util.Map;
  * @version 1.0
  * @since 2021/12/7
  */
-public class NewDynamicSql {
+public class DynamicSql {
     private static final Map<String, MapperNameSpace> mapperNameSpaceMap = new HashMap<>();
 
     public static void addOrUpdateOne(MapperNameSpace mapperNameSpace) {

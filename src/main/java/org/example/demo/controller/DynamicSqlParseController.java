@@ -3,7 +3,7 @@ package org.example.demo.controller;
 import org.apache.commons.lang3.StringUtils;
 import org.example.demo.common.DbCodeEnum;
 import org.example.demo.common.SqlQueryRequest;
-import org.example.demo.config.nacos.NewDynamicSql;
+import org.example.demo.config.nacos.DynamicSql;
 import org.example.demo.util.MyBatisUtil;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,16 +26,16 @@ public class DynamicSqlParseController {
 
     @GetMapping("findAll")
     public Object findAll() {
-        return NewDynamicSql.findAll();
+        return DynamicSql.findAll();
     }
 
     @GetMapping("/find/{namespace}/{id}")
     public String find(@PathVariable String namespace, @PathVariable String id) {
-        return NewDynamicSql.getSqlXmlByNameSpaceAndId(namespace, id);
+        return DynamicSql.getSqlXmlByNameSpaceAndId(namespace, id);
     }
     @PostMapping("/run/{dbCode}/{namespace}/{id}")
     public Object run(@PathVariable String dbCode, @PathVariable String namespace, @PathVariable String id, @RequestBody Map<String, Object> map) {
-        String sql = NewDynamicSql.getSqlXmlByNameSpaceAndId(namespace, id);
+        String sql = DynamicSql.getSqlXmlByNameSpaceAndId(namespace, id);
         if (StringUtils.isNotBlank(sql)) {
             SqlQueryRequest sqlQueryRequest = new SqlQueryRequest();
             sqlQueryRequest.setSql(MyBatisUtil.parseDynamicXMLFormXmlStr(sql, map));

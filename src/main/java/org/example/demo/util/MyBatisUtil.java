@@ -144,19 +144,6 @@ public class MyBatisUtil {
     }
 
 
-    private static Document parseXMLDocument(String xmlString) {
-        if (StringUtils.isBlank(xmlString)) {
-            log.error("动态解析的xmlString 不能为空!!");
-            return null;
-        }
-        try {
-            return documentBuilder.parse(new InputSource(new StringReader(xmlString)));
-        } catch (Exception e) {
-            log.error("XML解析异常,请检查XML格式是否正确,errMsg:{}", e.getMessage());
-        }
-        return null;
-    }
-
     public static void main(String[] args) throws Exception {
         String fileUrl="/Users/nmy/Desktop/self_work/mybatis-xml-test/src/main/java/org/example/demo/testfile/sql.xml";
         String mapperXml = FileUtils.readFileToString(new File(fileUrl), StandardCharsets.UTF_8.name());
