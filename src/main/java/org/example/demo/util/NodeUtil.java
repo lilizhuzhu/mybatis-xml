@@ -78,7 +78,7 @@ public class NodeUtil {
                 if ((item.getNodeType() == Node.ELEMENT_NODE)) {
                     xmlStr.append(addSqlTagToNode(item, sqlNodes));
                 } else {
-                    xmlStr.append(item.getTextContent());
+                    xmlStr.append(conversion(item.getTextContent()));
                 }
             }
         }
@@ -88,6 +88,9 @@ public class NodeUtil {
         return xmlStr.toString();
     }
 
+    public static String conversion(String str){
+       return StringUtils.replace(str,"<","&lt;");
+    }
     /**
      * 获得 标签上对应的参数
      *
@@ -141,7 +144,7 @@ public class NodeUtil {
                 if ((item.getNodeType() == Node.ELEMENT_NODE)) {
                     xmlStr.append(nodeToString(item));
                 } else {
-                    xmlStr.append(item.getTextContent());
+                    xmlStr.append(conversion(item.getTextContent()));
                 }
             }
         }
