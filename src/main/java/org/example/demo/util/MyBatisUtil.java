@@ -1,11 +1,11 @@
 package org.example.demo.util;
 
 
-import cn.hutool.extra.spring.SpringUtil;
+import com.google.common.collect.Maps;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.builder.BuilderException;
 import org.apache.ibatis.builder.xml.XMLMapperEntityResolver;
-import org.apache.ibatis.jdbc.SqlRunner;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.ParameterMapping;
@@ -22,28 +22,16 @@ import org.example.demo.common.MapperNameSpace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 
-import javax.sql.DataSource;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import java.io.File;
 import java.io.StringReader;
-import java.sql.SQLException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-import java.util.StringTokenizer;
-import java.util.UUID;
-
-import static org.w3c.dom.Node.ELEMENT_NODE;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 
 
 public class MyBatisUtil {
@@ -78,19 +66,15 @@ public class MyBatisUtil {
 
         //log.info("原始sqlXml:{} , params:{}", xmlSQL, JSON.toJSONString(parameterObject));
         //解析成xml
-       /* Document doc = parseXMLDocument(xmlSQL);
-        if (doc == null) {
-            return null;
-        }*/
         XPathParser xPathParser = new XPathParser(xmlSQL, false);
-        XNode xNode = xPathParser.evalNode("/");
-        //走mybatis 流程 parse成Xnode
-       // XNode xNode = new XNode(xPathParser, doc.getFirstChild(), null);
+        XNode xNode = xPathParser.evalNode("select|insert|update|delete");
+
         // 之前的所有步骤 都是为了构建 XMLScriptBuilder 对象,
         XMLScriptBuilder xmlScriptBuilder = new XMLScriptBuilder(configuration, xNode);
         //解析 静态xml 和动态的xml
         SqlSource sqlSource = xmlScriptBuilder.parseScriptNode();
-        MappedStatement ms = new MappedStatement.Builder(configuration, UUID.randomUUID().toString(), sqlSource, null).build();
+
+        MappedStatement ms = new MappedStatement.Builder(configuration, xNode.getStringAttribute("id"), sqlSource, null).build();
         //将原始sql 与 参数绑定
         BoundSql boundSql = ms.getBoundSql(parameterObject);
 
@@ -174,138 +158,46 @@ public class MyBatisUtil {
     }
 
     public static void main(String[] args) throws Exception {
+        String fileUrl="/Users/nmy/Desktop/self_work/mybatis-xml-test/src/main/java/org/example/demo/testfile/sql.xml";
+        String mapperXml = FileUtils.readFileToString(new File(fileUrl), StandardCharsets.UTF_8.name());
 
-
-
+        XPathParser xPathParser = new XPathParser(PREFIX + mapperXml, true, configuration.getVariables(), ENTITY_RESOLVER);
+        XNode mapperNode = xPathParser.evalNode("/mapper");
+        String stringByNode = NodeUtil.nodeToString(mapperNode.getNode(),false);
+        System.out.println(stringByNode);
     }
 
     public static MapperNameSpace getYSMapper(String allXml) {
-        if (StringUtils.isBlank(allXml)){
+        if (StringUtils.isBlank(allXml)) {
             return null;
         }
-        XPathParser xPathParser = new XPathParser(PREFIX+allXml, true, configuration.getVariables(), ENTITY_RESOLVER);
+        XPathParser xPathParser = new XPathParser(PREFIX + allXml, true, configuration.getVariables(), ENTITY_RESOLVER);
         XNode mapperNode = xPathParser.evalNode("/mapper");
         String namespace = mapperNode.getStringAttribute("namespace");
         if (namespace == null || namespace.isEmpty()) {
             throw new BuilderException("Mapper's namespace cannot be empty");
         }
+
+        List<XNode> curdNodeList = mapperNode.evalNodes("select|insert|update|delete");
+        List<XNode> sqlNodes = mapperNode.evalNodes("sql");
+        Map<String, String> sqlNodeMap = Maps.newHashMap();
+        if (sqlNodes != null) {
+            sqlNodes.stream().forEach(s -> {
+                sqlNodeMap.put(s.getStringAttribute("id"), NodeUtil.nodeToString(s.getNode(),false));
+            });
+        }
         MapperNameSpace mapperNameSpace = new MapperNameSpace();
         mapperNameSpace.setNamespace(namespace);
-        List<XNode> curdNodeList = mapperNode.evalNodes("sql|select|insert|update|delete");
-
         curdNodeList.stream().forEach(curd -> {
             String id = curd.getStringAttribute("id");
-            String mapperStr =  NodeUtil.getStringByNode(curd.getNode());
+            String mapperStr = NodeUtil.addSqlTagToNode(curd.getNode(), sqlNodeMap);
             mapperNameSpace.putIdXml(IdLabelType.valueOf(curd.getName().toUpperCase(Locale.ROOT)), id, mapperStr);
         });
+        mapperNameSpace.putIdXml(IdLabelType.SQL,sqlNodeMap);
         return mapperNameSpace;
     }
 
-    /**
-     * 获得xml 中 父节点参数id 对应的原始Xml字符串
-     *
-     * @param nodeList
-     * @return
-     */
-    private static Map<String, String> getIdAndXmlSql(NodeList nodeList) {
-        int length = nodeList.getLength();
-        if (length > 0) {
-            Map<String, String> child = new HashMap<>(length);
-            for (int i = 0; i < length; i++) {
-                Node item = nodeList.item(i);
-                NamedNodeMap attributes = item.getAttributes();
-                if (attributes != null) {
-                    Node node = attributes.getNamedItem("id");
-                    if (node != null) {
-                        if (StringUtils.isNoneEmpty(node.getNodeValue(), item.getTextContent())) {
-                            // id , 把整个xml字符串 加入
-                            child.put(node.getNodeValue(), removeExtraWhitespaces(getStringByNode(item)));
-                        }
-                    }
-                }
-            }
-            return child;
-        }
-        return Collections.EMPTY_MAP;
-    }
 
-    /**
-     * <select id="ddd" op="ooo"></>
-     * 获得某个节点的 参数
-     *
-     * @param node
-     * @return id="ddd" op="ooo"
-     */
-    private static String getNodeParameter(Node node) {
-        StringBuilder parameter = new StringBuilder();
-        if (Objects.nonNull(node) && (node.getNodeType() == ELEMENT_NODE)) {
-            if (node.hasAttributes()) {
-                NamedNodeMap attributes = node.getAttributes();
-                for (int j = 0; j < attributes.getLength(); j++) {
-                    Node attribute = attributes.item(j);
-                    if (Objects.nonNull(attribute)) {
-                        String attributeNodeValue = attribute.getNodeValue();
-                        String attributeNodeName = attribute.getNodeName();
-                        if (StringUtils.isNoneBlank(attributeNodeName, attributeNodeValue)) {
-                            parameter.append(" " + attributeNodeName + "=\"" + attributeNodeValue + "\"");
-                        }
-                    }
-                }
-            }
-        }
-        return parameter.toString();
-    }
-
-    /**
-     * 获得某个节点 原始(解析前)的xml字符串
-     *
-     * @param node
-     * @return
-     */
-    private static String getStringByNode(Node node) {
-        if (node == null) {
-            return StringUtils.EMPTY;
-        }
-        StringBuilder xmlStr = new StringBuilder();
-
-        //判断是否为节点
-        if ((node.getNodeType() == ELEMENT_NODE)) {
-            xmlStr.append("<" + node.getNodeName() + getNodeParameter(node) + ">");
-        }
-        NodeList childNodes = node.getChildNodes();
-        //判断如果有子节点
-        if (childNodes != null) {
-            //遍历子节点 从
-            for (int i = 0; i < childNodes.getLength(); i++) {
-                Node item = childNodes.item(i);
-                //判断是否为 文本节点
-                if ((item.getNodeType() == ELEMENT_NODE)) {
-                    xmlStr.append(getStringByNode(item));
-                } else {
-                    xmlStr.append(item.getTextContent());
-                }
-            }
-        }
-        if (node.getNodeType() == ELEMENT_NODE) {
-            xmlStr.append("</" + node.getNodeName() + ">");
-        }
-        return xmlStr.toString();
-    }
-
-    public static SqlRunner getSqlRunner(String dataSourceName) {
-        Map<String, DataSource> beansOfType = SpringUtil.getBeansOfType(DataSource.class);
-        if (beansOfType != null && beansOfType.size() > 0) {
-            DataSource dataSource = beansOfType.get(dataSourceName);
-            if (dataSource != null) {
-                try {
-                    return new SqlRunner(dataSource.getConnection());
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        return null;
-    }
 }
 
 

@@ -5,13 +5,10 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.StringTokenizer;
 
-import static org.w3c.dom.Node.ELEMENT_NODE;
 
 /**
  * @author nmy
@@ -20,47 +17,19 @@ import static org.w3c.dom.Node.ELEMENT_NODE;
  */
 public class NodeUtil {
 
-    public static void main(String[] args) {
+   private static final String INCLUDE_TAG="include";
 
-    }
-    /**
-     * 获得xml 中 父节点参数id 对应的原始Xml字符串
-     *
-     * @param nodeList
-     * @return
-     */
-    private static Map<String, String> getIdAndXmlSql(NodeList nodeList) {
-        int length = nodeList.getLength();
-        if (length > 0) {
-            Map<String, String> child = new HashMap<>(length);
-            for (int i = 0; i < length; i++) {
-                Node item = nodeList.item(i);
-                NamedNodeMap attributes = item.getAttributes();
-                if (attributes != null) {
-                    Node node = attributes.getNamedItem("id");
-                    if (node != null) {
-                        if (StringUtils.isNoneEmpty(node.getNodeValue(), item.getTextContent())) {
-                            // id , 把整个xml字符串 加入
-                            child.put(node.getNodeValue(), removeExtraWhitespaces(getStringByNode(item)));
-                        }
-                    }
-                }
-            }
-            return child;
-        }
-        return Collections.EMPTY_MAP;
-    }
 
     /**
      * <select id="ddd" op="ooo"></>
      * 获得某个节点的 参数
      *
-     * @param node
+     * @param node 1
      * @return id="ddd" op="ooo"
      */
     private static String getNodeParameter(Node node) {
         StringBuilder parameter = new StringBuilder();
-        if (Objects.nonNull(node) && (node.getNodeType() == ELEMENT_NODE)) {
+        if (Objects.nonNull(node) && (node.getNodeType() == Node.ELEMENT_NODE)) {
             if (node.hasAttributes()) {
                 NamedNodeMap attributes = node.getAttributes();
                 for (int j = 0; j < attributes.getLength(); j++) {
@@ -69,7 +38,7 @@ public class NodeUtil {
                         String attributeNodeValue = attribute.getNodeValue();
                         String attributeNodeName = attribute.getNodeName();
                         if (StringUtils.isNoneBlank(attributeNodeName, attributeNodeValue)) {
-                            parameter.append(" " + attributeNodeName + "=\"" + attributeNodeValue + "\"");
+                            parameter.append(" ").append(attributeNodeName).append("=\"").append(attributeNodeValue).append("\"");
                         }
                     }
                 }
@@ -78,21 +47,26 @@ public class NodeUtil {
         return parameter.toString();
     }
 
-    /**
-     * 获得某个节点 原始(解析前)的xml字符串
-     *
-     * @param node
-     * @return
-     */
-    public static String getStringByNode(Node node) {
-        if (node == null) {
-            return StringUtils.EMPTY;
+
+    public static String addSqlTagToNode(Node node, Map<String, String> sqlNodes) {
+        if (sqlNodes == null || sqlNodes.size() == 0) {
+            return nodeToString(node);
         }
         StringBuilder xmlStr = new StringBuilder();
-
         //判断是否为节点
-        if ((node.getNodeType() == ELEMENT_NODE)) {
-            xmlStr.append("<" + node.getNodeName() + getNodeParameter(node) + ">");
+        if (node.getNodeType() == Node.ELEMENT_NODE) {
+            if (INCLUDE_TAG.equals(node.getNodeName())) {
+                //获得引用的id
+                String refid = getStringAttribute(node, "refid");
+                if (StringUtils.isNotBlank(refid)) {
+                    String includeSql = sqlNodes.get(refid);
+                    if (StringUtils.isNotBlank(includeSql)) {
+                        xmlStr.append(includeSql);
+                    }
+                }
+            } else {
+                xmlStr.append("<").append(node.getNodeName()).append(getNodeParameter(node)).append(">");
+            }
         }
         NodeList childNodes = node.getChildNodes();
         //判断如果有子节点
@@ -101,15 +75,78 @@ public class NodeUtil {
             for (int i = 0; i < childNodes.getLength(); i++) {
                 Node item = childNodes.item(i);
                 //判断是否为 文本节点
-                if ((item.getNodeType() == ELEMENT_NODE)) {
-                    xmlStr.append(getStringByNode(item));
+                if ((item.getNodeType() == Node.ELEMENT_NODE)) {
+                    xmlStr.append(addSqlTagToNode(item, sqlNodes));
                 } else {
                     xmlStr.append(item.getTextContent());
                 }
             }
         }
-        if (node.getNodeType() == ELEMENT_NODE) {
-            xmlStr.append("</" + node.getNodeName() + ">");
+        if (node.getNodeType() == Node.ELEMENT_NODE && !INCLUDE_TAG.equals(node.getNodeName())) {
+            xmlStr.append("</").append(node.getNodeName()).append(">");
+        }
+        return xmlStr.toString();
+    }
+
+    /**
+     * 获得 标签上对应的参数
+     *
+     */
+    public static String getStringAttribute(Node node, String name) {
+        NamedNodeMap attributes = node.getAttributes();
+        if (attributes != null) {
+            Node item = attributes.getNamedItem(name);
+            if (item != null) {
+                return item.getNodeValue();
+            }
+        }
+        return null;
+
+    }
+
+    /**
+     * 获得node 全部标签数据
+     *
+     * @param node
+     * @return
+     */
+    public static String nodeToString(Node node) {
+        return nodeToString(node, true);
+    }
+
+    /**
+     * 获得某个节点 原始(解析前)的xml字符串
+     *
+     * @param node
+     * @param hasRootTag true: 全部标签 ,false: 不包含顶级标签
+     * @return
+     */
+    public static String nodeToString(Node node, boolean hasRootTag) {
+        if (node == null) {
+            return StringUtils.EMPTY;
+        }
+        StringBuilder xmlStr = new StringBuilder();
+
+        //判断是否为节点
+        if ((node.getNodeType() ==Node.ELEMENT_NODE) && hasRootTag) {
+            xmlStr.append("<").append(node.getNodeName()).append(getNodeParameter(node)).append(">");
+        }
+        NodeList childNodes = node.getChildNodes();
+        //判断如果有子节点
+        if (childNodes != null) {
+            //遍历子节点 从
+            for (int i = 0; i < childNodes.getLength(); i++) {
+                Node item = childNodes.item(i);
+                //判断是否为 文本节点
+                if ((item.getNodeType() == Node.ELEMENT_NODE)) {
+                    xmlStr.append(nodeToString(item));
+                } else {
+                    xmlStr.append(item.getTextContent());
+                }
+            }
+        }
+        if (node.getNodeType() == Node.ELEMENT_NODE && hasRootTag) {
+            xmlStr.append("</").append(node.getNodeName()).append(">");
         }
         return xmlStr.toString();
     }

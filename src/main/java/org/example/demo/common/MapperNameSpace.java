@@ -21,14 +21,26 @@ import java.util.Set;
  * @version 1.0
  * @since 2021/12/7
  */
-
+@Data
 public class MapperNameSpace {
-    @Setter
-    @Getter
     private String namespace;
-    @Setter
-    @Getter
+
     private Map<IdLabelType, Map<String, String>> idMapperMap = Maps.newHashMap();
+
+    public void putIdXml(IdLabelType idLabelType, Map<String, String> map) {
+        if (idLabelType == null || map == null || map.size() == 0) {
+            return;
+        }
+        Map<String, String> idLabelTypeMap = idMapperMap.get(idLabelType);
+        if (idLabelTypeMap == null) {
+            idLabelTypeMap = Maps.newHashMap();
+            idMapperMap.put(idLabelType, idLabelTypeMap);
+        }
+        Map<String, String> finalIdLabelTypeMap = idLabelTypeMap;
+        map.forEach((k, v) -> {
+            finalIdLabelTypeMap.put(k, v);
+        });
+    }
 
     public void putIdXml(IdLabelType idLabelType, String id, String xml) {
         if (idLabelType == null || StringUtils.isAnyBlank(id, xml)) {
@@ -58,8 +70,12 @@ public class MapperNameSpace {
     }
 
     public String getById(String id) {
-       return idMapperMap.values().stream().map(im -> {
+        return idMapperMap.values().stream().map(im -> {
             return im.get(id);
         }).filter(StringUtils::isNotBlank).findFirst().orElse(null);
+    }
+
+    public Map<String, String> getByType(IdLabelType idLabelType) {
+        return idMapperMap.get(idLabelType);
     }
 }

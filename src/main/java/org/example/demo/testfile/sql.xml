@@ -1,0 +1,24 @@
+<mapper namespace="a_student">
+    <sql id="newnameSql">
+        <bind name="newname" value="@org.example.demo.util.TestUtil@dd()"/>
+    </sql>
+    <select id="selectByPrimaryKey">
+        <include refid="newnameSql"/>
+        select * from a_student
+        <where>
+            <if test="id!=null">
+                and id = #{id,jdbcType=INTEGER}
+            </if>
+            <if test="name!=null and name!=''">
+                and (name =#{name} or name=#{newname})
+            </if>
+            <if test="age!=null">
+                and age=#{age}
+            </if>
+            <if test="address!=null and address!=''">
+                and address = #{address}
+            </if>
+        </where>
+
+    </select>
+</mapper>
