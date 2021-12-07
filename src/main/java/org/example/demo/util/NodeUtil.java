@@ -7,7 +7,6 @@ import org.w3c.dom.NodeList;
 
 import java.util.Map;
 import java.util.Objects;
-import java.util.StringTokenizer;
 
 
 /**
@@ -152,29 +151,6 @@ public class NodeUtil {
             xmlStr.append("</").append(node.getNodeName()).append(">");
         }
         return xmlStr.toString();
-    }
-
-    /**
-     * 移除多余的空格
-     *
-     * @param original
-     * @return
-     */
-    public static String removeExtraWhitespaces(String original) {
-        if (StringUtils.isBlank(original)) {
-            return StringUtils.EMPTY;
-        }
-        StringTokenizer tokenizer = new StringTokenizer(original);
-        StringBuilder builder = new StringBuilder();
-        boolean hasMoreTokens = tokenizer.hasMoreTokens();
-        while (hasMoreTokens) {
-            builder.append(tokenizer.nextToken());
-            hasMoreTokens = tokenizer.hasMoreTokens();
-            if (hasMoreTokens) {
-                builder.append(' ');
-            }
-        }
-        return builder.toString();
     }
 
 }
